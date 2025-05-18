@@ -26,8 +26,8 @@ namespace Wordle
 
             resultado = resta(4, 5);
             Console.WriteLine(resultado);
-            //ApplicationConfiguration.Initialize();
-            //Application.Run(new Form1());
+     
+            Application.Run(new Form1());
         }
     }
 }
