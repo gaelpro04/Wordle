@@ -34,7 +34,7 @@
             label1.FlatStyle = FlatStyle.Flat;
             label1.Font = new Font("Segoe UI Historic", 36F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label1.ForeColor = Color.LimeGreen;
-            label1.Location = new Point(235, 45);
+            label1.Location = new Point(235, 9);
             label1.Margin = new Padding(7, 0, 7, 0);
             label1.Name = "label1";
             label1.Size = new Size(232, 81);
@@ -47,7 +47,7 @@
             button1.BackColor = SystemColors.MenuBar;
             button1.BackgroundImageLayout = ImageLayout.None;
             button1.CausesValidation = false;
-            button1.Location = new Point(213, 196);
+            button1.Location = new Point(213, 195);
             button1.Name = "button1";
             button1.Size = new Size(254, 72);
             button1.TabIndex = 1;
