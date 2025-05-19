@@ -19,7 +19,15 @@ namespace Wordle
 
         private void button2_Click(object sender, EventArgs e)
         {
-           
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+            Form2 juego = new Form2();
+            juego.ShowDialog();
+            this.Close();
         }
     }
 }
