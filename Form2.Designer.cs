@@ -75,6 +75,7 @@
             label31 = new Label();
             textBox1 = new TextBox();
             label32 = new Label();
+            label33 = new Label();
             SuspendLayout();
             // 
             // label1
@@ -458,6 +459,7 @@
             textBox1.Name = "textBox1";
             textBox1.Size = new Size(324, 27);
             textBox1.TabIndex = 31;
+            textBox1.TextChanged += textBox1_TextChanged;
             // 
             // label32
             // 
@@ -470,11 +472,22 @@
             label32.Text = "Ingrese la palabra";
             label32.Click += label32_Click;
             // 
+            // label33
+            // 
+            label33.AutoSize = true;
+            label33.Location = new Point(0, 0);
+            label33.Name = "label33";
+            label33.Size = new Size(58, 20);
+            label33.TabIndex = 33;
+            label33.Text = "label33";
+            label33.Click += label33_Click;
+            // 
             // Form2
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(709, 609);
+            Controls.Add(label33);
             Controls.Add(label32);
             Controls.Add(textBox1);
             Controls.Add(label27);
@@ -551,5 +564,6 @@
         private Label label31;
         private TextBox textBox1;
         private Label label32;
+        private Label label33;
     }
 }
