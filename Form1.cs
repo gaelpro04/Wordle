@@ -24,10 +24,19 @@ namespace Wordle
 
         private void button1_Click(object sender, EventArgs e)
         {
-            this.Hide();
-            Form2 juego = new Form2();
-            juego.ShowDialog();
-            this.Close();
+            using (Form3 form3 = new Form3())
+            {
+                if (form3.ShowDialog() == DialogResult.OK)
+                {
+                    string dificultad = form3.dificultadSeleccionada;
+
+                    this.Hide();
+                    Form2 juego = new Form2(dificultad);
+                    juego.ShowDialog();
+                    this.Close();
+                }
+            }
+                
         }
     }
 }

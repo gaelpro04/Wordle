@@ -475,11 +475,12 @@
             // label33
             // 
             label33.AutoSize = true;
-            label33.Location = new Point(0, 0);
+            label33.Font = new Font("Segoe UI", 13.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label33.Location = new Point(2, 9);
             label33.Name = "label33";
-            label33.Size = new Size(58, 20);
+            label33.Size = new Size(159, 31);
             label33.TabIndex = 33;
-            label33.Text = "label33";
+            label33.Text = "Tiempo 12:00";
             label33.Click += label33_Click;
             // 
             // Form2

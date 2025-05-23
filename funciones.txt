@@ -8,6 +8,80 @@ __declspec(dllexport) int __stdcall resta(int a, int b) {
 	return a - b;
 }
 
-__declspec(dllexport) void __stdcall generadorPalabrasJuego() {
+//Metodo para generar un numero random dentro de ASM
+__declspec(dllexport) int __stdcall generadorNumeroRandom() {
 	
+	int numeroGenerado;
+
+	//rdtsc lee el tiempo de ejecucion del CPU en edx:eax, luego se mezclan bits de edx con eax.
+	//Movemos 10 a ecx que sera nuestro maximo(realmente 9 por la operacion) y se divido eax entre
+	//ecx es decir eax/10.
+
+	//Ya por ultimo se mueve el residuo a numeroGenerado.
+	__asm {
+		rdtsc
+		xor edx, eax
+		xor edx, edx 
+		mov ecx, 10
+		div ecx
+		mov numeroGenerado, edx 
+	}
+
+	return numeroGenerado;
+}
+
+//Metodo para verificar **NO TERMINADO
+__declspec(dllexport) char* verificarDificultad(char* dificultad) {
+
+	char* nuevaDificultad;
+	char facil[] = "Facil";
+	char normal[] = "Normal";
+	char dificil[] = "Dificil";
+	char negado[] = "noseleccionado";
+
+	__asm {
+		
+		TESTFACIL:
+			lea esi, dificultad
+			lea edi, facil
+
+			CICLO1:
+				mov al, [esi]
+				mov bl, [edi]
+				cmp al, bl
+				jne NOIGUALES
+				
+				cmp al, 0
+				je IGUALESFACIL
+
+
+		IGUALESFACIL:
+			lea edi, facil
+			lea esi, nuevaDificultad
+
+			COPIARF:
+				mov al, byte ptr [edi]
+				mov byte ptr [esi], al
+
+				cmp al, 0
+				je FIN
+				inc esi
+				inc edi
+				jmp COPIARF
+
+		IGUALESNORMAL:
+
+		IGUALESDIFICIL:
+
+
+
+
+
+		NOIGUALES:
+
+		FIN:
+
+	}
+
+	return nuevaDificultad;
 }
