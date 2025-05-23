@@ -17,6 +17,15 @@ namespace Wordle
         [DllImport("DllPro.dll", CallingConvention = CallingConvention.StdCall)]
         public static extern int generadorNumeroRandom();
 
+        [DllImport("DllPro.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+        public static extern int verificarDificultad(string dificultad);
+
+        [DllImport("DllPro.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+        //Se usa IntPtr porque directamente no se puede usar char** en Csharp por lo tanto string[] != char**
+        //por eso mismo es necesario usar IntPtr que manualmente convierte cada String en puntero usando una funcion adicional
+        public static extern IntPtr obtenerPalabra(IntPtr[] banco, int index);
+
+
 
         private string[] bancoFacil = {"comer", "subir", "beber", " sacar", "decir", "mirar", "poner", "abrir", "tomar", "pagar"};
         private string[] bancoNormal = {"pedir", "medir", "nacer", "rogar", "venir", "soñar", "jugar", "andar", "tirar", "parir"};
@@ -30,8 +39,19 @@ namespace Wordle
             this.dificultad = dificultadSeleccionada;
             Console.WriteLine(dificultad);
 
+            int numeroDificultad = verificarDificultad(dificultad);
+            Console.WriteLine(numeroDificultad);
+
             int numero = generadorNumeroRandom();
             Console.WriteLine(numero);
+
+            IntPtr[] bancoPtr = new IntPtr[bancoFacil.Length];
+            //for (int i = 0; i < bancoFacil.Length)
+
+            //string palabraObtenida = Marshal.PtrToStringAnsi(obtenerPalabra(bancoNormal, numero));
+            //Console.WriteLine(palabraObtenida);
+
+
         }
 
         private void asignarPalabraDificultad()
@@ -63,5 +83,12 @@ namespace Wordle
         {
             
         }
+
+        //private IntPtr[] StringArToIntPtrAr(String[] banco)
+        //{
+        //    IntPtr[] bancoPtr = new IntPtr[banco.Length];
+
+        //    for (int i = 0; )
+        //}
     }
 }
