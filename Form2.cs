@@ -35,27 +35,33 @@ namespace Wordle
         {
             InitializeComponent();
             this.dificultad = dificultadSeleccionada;
-            Console.WriteLine(dificultad);
-
-            int numeroDificultad = verificarDificultad(dificultad);
-            Console.WriteLine(numeroDificultad);
-
-            int numero = generadorNumeroRandom();
-            Console.WriteLine(numero);
-
-            IntPtr[] bancoPtr = new IntPtr[bancoFacil.Length];
-            //for (int i = 0; i < bancoFacil.Length)
-
-            //string palabraObtenida = Marshal.PtrToStringAnsi(obtenerPalabra(bancoNormal, numero));
-            //Console.WriteLine(palabraObtenida);
+            
 
             //Crear los cuadritos de forma automatica y dependiendo de la dificultad hacer mas o menos cuadritos
 
         }
 
+        //Metodo para asignar la palabra seleccionada Random
         private void asignarPalabraDificultad()
         {
-            
+            int numeroRandomGenerado = generadorNumeroRandom();
+            Console.WriteLine("Numero generado: " + numeroRandomGenerado);
+
+            int numeroDificultad = verificarDificultad(dificultad);
+            IntPtr[] bancoConversion;
+
+            if (numeroDificultad == 1)
+            {
+                bancoConversion = StringArToIntPtrAr(bancoFacil);
+                palabraSeleccionada = Marshal.PtrToStringAnsi(obtenerPalabra(bancoConversion, numeroRandomGenerado));
+
+            } else if (numeroDificultad == 2) {
+
+            } else if (numeroDificultad == 3) {
+
+            } else { 
+                //Aun no se
+            }
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -83,11 +89,16 @@ namespace Wordle
             
         }
 
-        //private IntPtr[] StringArToIntPtrAr(String[] banco)
-        //{
-        //    IntPtr[] bancoPtr = new IntPtr[banco.Length];
+        private IntPtr[] StringArToIntPtrAr(String[] banco)
+        {
+            IntPtr[] bancoPtr = new IntPtr[banco.Length];
 
-        //    for (int i = 0; )
-        //}
+            for (int i = 0; i < banco.Length; ++i)
+            {
+                bancoPtr[i] = Marshal.StringToHGlobalAnsi(banco[i]);
+            }
+
+            return bancoPtr;
+        }
     }
 }
