@@ -25,11 +25,9 @@ namespace Wordle
         //por eso mismo es necesario usar IntPtr que manualmente convierte cada String en puntero usando una funcion adicional
         public static extern IntPtr obtenerPalabra(IntPtr[] banco, int index);
 
-
-
         private string[] bancoFacil = {"comer", "subir", "beber", " sacar", "decir", "mirar", "poner", "abrir", "tomar", "pagar"};
-        private string[] bancoNormal = {"pedir", "medir", "nacer", "rogar", "venir", "soñar", "jugar", "andar", "tirar", "parir"};
-        private string[] bancoDificil = { "pulir", "yacer", "ceñir", "tañer", "urdir", "ceder", "coser", "zumar", "toser", "teñir" };
+        private string[] bancoNormal = {"colina", "esfera", "rodaje", "luchar", "tomate", "granos", "grieta", "cerrar", "sender", "salida"};
+        private string[] bancoDificil = { "ventana", "maestro", "zapatos", "archivo", "cuerpo", "empresa", "hombre", "letras", "relojes", "carrera" };
         private string palabraSeleccionada;
         private string palabraUsuario;
         private string dificultad;
@@ -51,6 +49,7 @@ namespace Wordle
             //string palabraObtenida = Marshal.PtrToStringAnsi(obtenerPalabra(bancoNormal, numero));
             //Console.WriteLine(palabraObtenida);
 
+            //Crear los cuadritos de forma automatica y dependiendo de la dificultad hacer mas o menos cuadritos
 
         }
 

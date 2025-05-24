@@ -22,15 +22,26 @@
 
         protected void inicializarLabels()
         {
-            labels = new List<Label[]>(6);
+            int filas = 6;
+            int columnas = 5;
+            labels = new Label[filas, columnas];
 
-            for (int i = 0; i < 6; ++i) {
-                labels.Add(new Label[6]);
+            for (int i = 0; i < filas; i++)
+            {
+                for (int j = 0; j < columnas; j++)
+                {
+                    Label lbl = new Label();
+                    lbl.Width = 50;
+                    lbl.Height = 50;
+                    lbl.TextAlign = ContentAlignment.MiddleCenter;
+                    lbl.Font = new Font("Arial", 20, FontStyle.Bold);
+                    lbl.BorderStyle = BorderStyle.FixedSingle;
+                    lbl.BackColor = Color.White;
+                    lbl.Location = new Point(10 + j * 55, 10 + i * 55); // Espaciado de 5 px
 
-                for (int j = 0; j < 5; ++j) {
-                    labels[i][j] = new Label();
+                    labels[i, j] = lbl;
+                    this.Controls.Add(lbl);  // Agrega al formulario
                 }
-               
             }
         }
 
@@ -531,7 +542,7 @@
 
         #endregion
 
-        private List<Label[]> labels;
+        private Label[,] labels;
         private Label label1;
         private Label label2;
         private Label label3;

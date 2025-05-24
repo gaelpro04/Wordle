@@ -24,6 +24,8 @@ namespace Wordle
             int resultado = suma(4, 5);
             Console.WriteLine(resultado);
 
+            Console.WriteLine("Hola hermano");
+
             resultado = resta(4, 5);
             Console.WriteLine(resultado);
      

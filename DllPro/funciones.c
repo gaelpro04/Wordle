@@ -1,0 +1,158 @@
+#include <windows.h>
+
+__declspec(dllexport) int __stdcall suma(int a, int b) {
+	return a + b;
+}
+
+__declspec(dllexport) int __stdcall resta(int a, int b) {
+	return a - b;
+}
+
+//Metodo para generar un numero random dentro de ASM
+__declspec(dllexport) int __stdcall generadorNumeroRandom() {
+
+	int numeroGenerado;
+
+	//rdtsc lee el tiempo de ejecucion del CPU en edx:eax, luego se mezclan bits de edx con eax.
+	//Movemos 10 a ecx que sera nuestro maximo(realmente 9 por la operacion) y se divido eax entre
+	//ecx es decir eax/10.
+
+	//Ya por ultimo se mueve el residuo a numeroGenerado.
+	__asm {
+		rdtsc
+		xor edx, eax
+		xor edx, edx
+		mov ecx, 10
+		div ecx
+		mov numeroGenerado, edx
+	}
+
+	return numeroGenerado;
+}
+
+//Metodo para verificar la dificultad del juego
+__declspec(dllexport) int __stdcall verificarDificultad(char* dificultad) {
+
+	//Se crean las variables necesarias, es decir la dificultad final(dependiendo de la dificultad identificada se asingara un valor)
+	//ademas los arreglos de cada dificultad para poder compararla.
+	int nuevaDificultad;
+	char facil[] = "Facil";
+	char normal[] = "Normal";
+	char dificil[] = "Dificil";
+
+	//Basicamente se asigna al inicio el -1 para dejar definido que no se encontro, pero con las comparaciones si una de los tres 
+	//es igual entonces se cambia a otro numero entero
+
+	//Se mueve el puntero de dificultad a un registro para recorrer y tambien la dificultad base para comparar en otro registro.
+
+	//Mete los caracteres del mismo indice a registos y los compara, si son iguales entonces sigue recorriendo hasta encontrar el 0 es decir
+	//caracter nulo
+
+	//Si no coinciden con un solo caracter quiere decir que no son iguales, por lo tanto pasa a compara con otra dificultad, ya al ultimo que no
+	//es igual a la ultima dificultad simplemente termina el codigo de ASM.
+
+	//Si son iguales se asigna un nuevo valora dificultad mediante dirigiendolo a la etiqueta correspondiente
+	__asm {
+
+		mov nuevaDificultad, -1
+
+		TESTFACIL:
+		mov esi, dificultad
+			lea edi, facil
+
+			CICLO1 :
+		mov al, [esi]
+			mov bl, [edi]
+			cmp al, bl
+			jne TESTNORMAL
+
+			cmp al, 0
+			je IGUALESFACIL
+			inc esi
+			inc edi
+
+			jmp CICLO1
+
+			TESTNORMAL :
+		mov esi, dificultad
+			lea edi, normal
+
+			CICLO2 :
+		mov al, [esi]
+			mov bl, [edi]
+			cmp al, bl
+			jne TESTDIFICIL
+
+
+			cmp al, 0
+			je IGUALESNORMAL
+			inc esi
+			inc edi
+
+
+			jmp CICLO2
+
+			TESTDIFICIL :
+		mov esi, dificultad
+			lea edi, dificil
+
+			CICLO3 :
+		mov al, [esi]
+			mov bl, [edi]
+			cmp al, bl
+			jne FIN
+
+			cmp al, 0
+			je IGUALESDIFICIL
+			inc esi
+			inc edi
+
+			jmp CICLO3
+
+			IGUALESFACIL :
+		mov nuevaDificultad, 1
+			jmp FIN
+
+			IGUALESNORMAL :
+		mov nuevaDificultad, 2
+			jmp FIN
+
+			IGUALESDIFICIL :
+		mov nuevaDificultad, 3
+			jmp FIN
+
+			FIN :
+	}
+
+	return nuevaDificultad;
+}
+
+//Funcion para obtener la palabra con el indice generado y la dificultad identificada
+__declspec(dllexport) char* __stdcall obtenerPalabra(char* banco[], int index) {
+
+	//Se asgina null a la variable donde se asignara la palabra para no generar errores
+	char* palabraSeleccionada = NULL;
+
+	//Consiste en primero verificar si el indice ingresado es valido, primero moviendo el indice a eax y se compara,
+	//sino simplemente se mete un cero a palabraSelccionada
+
+	//Ahora se mete a esi el puntero del arreglo y mediante la suma del puntero(ubicacion en memoria con el indice multplicado por cuatro por que cada char* vale 4 bytes)
+	//se obtiene la palabra del arreglo, ahora simplemente se mueve esa ubicacion en palabraSeleccionada para posteriormente regresarla
+	__asm {
+		mov eax, index
+		cmp eax, 9
+		ja FUERA
+
+		mov esi, banco
+		mov eax, [esi + eax * 4]
+		mov palabraSeleccionada, eax
+		jmp FIN
+
+		FUERA :
+		mov palabraSeleccionada, 0
+
+			FIN :
+	}
+
+	return palabraSeleccionada;
+}
