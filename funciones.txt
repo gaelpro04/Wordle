@@ -156,3 +156,47 @@ __declspec(dllexport) char* __stdcall obtenerPalabra(char* banco[], int index) {
 
 	return palabraSeleccionada;
 }
+
+//Funcion que cuenta las letras de una palabra
+__declspec(dllexport) int __stdcall cantidadLetrasPalabra(char* palabra) {
+	
+	//Se crea la variable que almacenara la cantidad de palabras
+	int cantidadLetras = 0;
+
+	//Mueve la ubicacion de memoria a esi para iterar.
+	//Limpia ecx para empezar a contar.
+	//Cuando empieza el ciclo, recorre cada elemento, si llega a cero quiere decir que es el caracter nulo
+	//por lo tanto se dirige a otra etiqueta, ademas sino es igual a cero, se incrementa ecx y esi para la siguiente iteracion
+	__asm {
+		mov esi, palabra
+		mov ecx, 0
+
+		CONTADOR:
+			mov al, [esi]
+			
+			cmp al, 0
+			je ACABO
+
+			inc esi
+			inc ecx
+			jmp CONTADOR
+
+		ACABO:
+			mov cantidadLetras, ecx
+	}
+
+
+	return cantidadLetras;
+}
+
+//Metodo que verifica los espacios amarillos con un arreglo booleano 
+__declspec(dllexport) int* __stdcall verificarAmarillos(char* palabra, int cantidadLetras) {
+
+	int* arreglo = (int*)malloc(sizeof(int) * cantidadLetras);
+
+	__asm {
+		mov ecx, arreglo
+	}
+
+	return arreglo;
+}

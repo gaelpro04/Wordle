@@ -5,7 +5,7 @@ VisualStudioVersion = 17.13.35919.96
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wordle", "Wordle.csproj", "{0C6DE574-4C62-4411-9CB3-A9C4DFB9D166}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DllPro", "DllPro\DllPro.vcxproj", "{CC89C648-1C1B-4AB1-B7AA-31B4D15A441C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DllPro", "..\DllPro\DllPro.vcxproj", "{CC89C648-1C1B-4AB1-B7AA-31B4D15A441C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

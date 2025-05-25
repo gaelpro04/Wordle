@@ -53,25 +53,11 @@
         /// </summary>
         private void InitializeComponent()
         {
-            label1 = new Label();
             label2 = new Label();
             textBox1 = new TextBox();
             label32 = new Label();
             label33 = new Label();
             SuspendLayout();
-            // 
-            // label1
-            // 
-            label1.BackColor = SystemColors.ControlLight;
-            label1.BorderStyle = BorderStyle.FixedSingle;
-            label1.Font = new Font("Segoe UI", 13.8F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label1.Location = new Point(139, 125);
-            label1.Name = "label1";
-            label1.Size = new Size(60, 60);
-            label1.TabIndex = 0;
-            label1.Text = "L";
-            label1.TextAlign = ContentAlignment.MiddleCenter;
-            label1.Click += label1_Click;
             // 
             // label2
             // 
@@ -79,7 +65,7 @@
             label2.FlatStyle = FlatStyle.Flat;
             label2.Font = new Font("Segoe UI Historic", 36F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label2.ForeColor = Color.LimeGreen;
-            label2.Location = new Point(233, 9);
+            label2.Location = new Point(243, 9);
             label2.Margin = new Padding(7, 0, 7, 0);
             label2.Name = "label2";
             label2.Size = new Size(232, 81);
@@ -88,7 +74,7 @@
             // 
             // textBox1
             // 
-            textBox1.Location = new Point(179, 570);
+            textBox1.Location = new Point(185, 685);
             textBox1.MaximumSize = new Size(324, 30);
             textBox1.Name = "textBox1";
             textBox1.Size = new Size(324, 27);
@@ -99,12 +85,11 @@
             // 
             label32.AutoSize = true;
             label32.Font = new Font("Segoe UI", 13.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label32.Location = new Point(245, 526);
+            label32.Location = new Point(243, 639);
             label32.Name = "label32";
             label32.Size = new Size(203, 31);
             label32.TabIndex = 32;
             label32.Text = "Ingrese la palabra";
-            label32.Click += label32_Click;
             // 
             // label33
             // 
@@ -115,18 +100,16 @@
             label33.Size = new Size(159, 31);
             label33.TabIndex = 33;
             label33.Text = "Tiempo 12:00";
-            label33.Click += label33_Click;
             // 
             // Form2
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(709, 609);
+            ClientSize = new Size(709, 733);
             Controls.Add(label33);
             Controls.Add(label32);
             Controls.Add(textBox1);
             Controls.Add(label2);
-            Controls.Add(label1);
             Name = "Form2";
             Text = "Form2";
             Load += Form2_Load;
@@ -137,7 +120,6 @@
         #endregion
 
         private Label[,] labels;
-        private Label label1;
         private Label label2;
         private TextBox textBox1;
         private Label label32;
