@@ -34,6 +34,15 @@ namespace Wordle
         [DllImport("DllPro.dll", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
         public static extern IntPtr verificarAmarillos(string palabraU, string palabraAdivinar, int cantidadLetras);
 
+        [DllImport("DllPro.dll", CallingConvention = CallingConvention.StdCall)]
+        public static extern int verificarVictoria(IntPtr arregloVerdes, int cantidadLetras);
+
+        [DllImport("DllPro.dll", CallingConvention = CallingConvention.StdCall)]
+        public static extern uint obtenerTiempo();
+
+        [DllImport("DllPro.dll", CallingConvention = CallingConvention.StdCall)]
+        public static extern int verificarDerrota(int intentos);
+
         private string[] bancoFacil = { "comer", "subir", "beber", " sacar", "decir", "mirar", "poner", "abrir", "tomar", "pagar" };
         private string[] bancoNormal = { "colina", "esfera", "rodaje", "luchar", "tomate", "granos", "grieta", "cerrar", "sender", "salida" };
         private string[] bancoDificil = { "ventana", "maestro", "zapatos", "archivo", "cuerpos", "empresa", "hombres", "brindar", "relojes", "carrera" };
@@ -41,18 +50,32 @@ namespace Wordle
         private string palabraUsuario;
         private int numeroDificultad;
         private int fila;
-
+        private uint tiempoAbsoluto, tiempoInicio;
+        private int minutos;
+        private string tiempo;
+        private int intentos; 
+    
         private List<Label[]> labelsLetras;
         public Form2(string dificultadSeleccionada)
         {
             InitializeComponent();
+            this.StartPosition = FormStartPosition.CenterScreen;
             string dificultad = dificultadSeleccionada;
             labelsLetras = new List<Label[]>();
+            intentos = 0;
+
+            minutos = 0;
+            tiempo = "0";
+            tiempoInicio = obtenerTiempo();
+            timer1 = new System.Windows.Forms.Timer();
+            timer1.Interval = 1000;
+            timer1.Tick += tiempo_Tick;
+            timer1.Start(); 
+
             asignarPalabraDificultad(dificultad);
             textBox1.KeyDown += TextBox1_KeyDown;
             fila = 0;
         }
-
 
         //Metodo para asignar la palabra seleccionada Random
         private void asignarPalabraDificultad(string dificultad)
@@ -119,9 +142,7 @@ namespace Wordle
 
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-        }
+
 
         //Funcion que genera dinamicamente los labels dependiendo de la dificultad
         private void generarLabels(int dificultad, int cantidadLetras)
@@ -215,9 +236,9 @@ namespace Wordle
 
                 for (int i = 0; i < longitudEsperada; i++)
                 {
-                    if (verdes[i] == 1) 
-                    { 
-                        labelsLetras[fila-1][i].BackColor = Color.Green;
+                    if (verdes[i] == 1)
+                    {
+                        labelsLetras[fila - 1][i].BackColor = Color.Green;
                     }
                     Console.WriteLine($"Posición {i}: {verdes[i]}");
                 }
@@ -228,13 +249,63 @@ namespace Wordle
 
                 for (int i = 0; i < longitudEsperada; i++)
                 {
-                    if (amarillos[i] == 1 && verdes[i] == 0) 
+                    if (amarillos[i] == 1 && verdes[i] == 0)
                     {
                         labelsLetras[fila - 1][i].BackColor = Color.Yellow;
                     }
                 }
+                ++intentos;
+
+                //Seccion para verificar victoria......
+                int verificadorVictoria = verificarVictoria(ptrVerdes, longitudEsperada);
+                int verificadorDerrota = verificarDerrota(intentos);
+                if (verificadorVictoria == 1)
+                {
+                    textBox1.Enabled = false;
+
+                    DialogResult resultado = 0;
+                    timer1.Stop();
+                    resultado = MessageBox.Show($"Has ganado!!. Tiempo: {tiempo} \n Deseas reiniciar el juego?", "Victoria", MessageBoxButtons.YesNo);
+
+                    if (resultado == DialogResult.Yes)
+                    {
+                        this.Hide();
+
+                        Form1 form1 = new Form1();
+                        form1.FormClosed += (s, args) => this.Close();
+
+                        form1.Show();
+                    } else
+                    {
+                        this.Close();
+                     
+                    }
+                } else if (verificadorDerrota == 1) 
+                {
+                    textBox1.Enabled = false;
+                    DialogResult resultado = 0;
+                    timer1.Stop();
+                    resultado = MessageBox.Show("Has perdido, has agotado todos tus intentos \n Deseas reiniciar el juego?", "Derrota", MessageBoxButtons.YesNo);
+
+                    if (resultado == DialogResult.Yes)
+                    {
+                        this.Hide();
+
+                        Form1 form1 = new Form1();
+                        form1.FormClosed += (s, args) => this.Close();
+
+                        form1.Show();
+                    }
+                    else
+                    {
+                        this.Close();
+
+                    }
+                }
             }
         }
+
+
 
         private IntPtr[] StringArToIntPtrAr(String[] banco)
         {
@@ -248,7 +319,51 @@ namespace Wordle
             return bancoPtr;
         }
 
+        //Metodo para obtener el tiempo actual en string y en formato de tiempo
+        //FALTA IMPLEMENTAR LAS OPERACIONES EN ASM YA QUE CONVERGUE A LO LOGICO LAS OPERACIONES AQUI.
+        private void tiempo_Tick(object sender, EventArgs e)
+        {
+            uint tiempoFinal = obtenerTiempo();
+            uint tiempoAbsoluto = tiempoFinal - tiempoInicio;
+            int tiempoSeg = (int) tiempoAbsoluto / 1000;
+
+            if (tiempoSeg > 59)
+            {
+                ++minutos;
+                tiempoSeg = 0;
+                tiempoInicio = obtenerTiempo();
+
+                label33.Text = tiempo;
+            } else
+            {
+                label33.Text = tiempo;
+            }
+
+            if (minutos > 0)
+            {
+                if (tiempoSeg < 10)
+                {
+                    tiempo = minutos + ":0" + tiempoSeg + " min";
+                } else
+                {
+                    tiempo = minutos + ":" + tiempoSeg + " min";
+                }
+
+                    
+            } else
+            {
+                tiempo = tiempoSeg + " s";
+            }
+
+                
+        }
+
         private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label33_Click(object sender, EventArgs e)
         {
 
         }

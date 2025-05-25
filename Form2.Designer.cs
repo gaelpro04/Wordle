@@ -53,10 +53,12 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             label2 = new Label();
             textBox1 = new TextBox();
             label32 = new Label();
             label33 = new Label();
+            timer1 = new System.Windows.Forms.Timer(components);
             SuspendLayout();
             // 
             // label2
@@ -65,30 +67,29 @@
             label2.FlatStyle = FlatStyle.Flat;
             label2.Font = new Font("Segoe UI Historic", 36F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label2.ForeColor = Color.LimeGreen;
-            label2.Location = new Point(273, 10);
-            label2.Margin = new Padding(8, 0, 8, 0);
+            label2.Location = new Point(243, 9);
+            label2.Margin = new Padding(7, 0, 7, 0);
             label2.Name = "label2";
-            label2.Size = new Size(258, 89);
+            label2.Size = new Size(232, 81);
             label2.TabIndex = 1;
             label2.Text = "Wordle";
             label2.Click += label2_Click;
             // 
             // textBox1
             // 
-            textBox1.Location = new Point(208, 788);
-            textBox1.MaximumSize = new Size(364, 30);
+            textBox1.Location = new Point(185, 685);
+            textBox1.MaximumSize = new Size(324, 30);
             textBox1.Name = "textBox1";
-            textBox1.Size = new Size(364, 30);
+            textBox1.Size = new Size(324, 27);
             textBox1.TabIndex = 31;
-            textBox1.TextChanged += textBox1_TextChanged;
             // 
             // label32
             // 
             label32.AutoSize = true;
             label32.Font = new Font("Segoe UI", 13.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label32.Location = new Point(273, 735);
+            label32.Location = new Point(243, 639);
             label32.Name = "label32";
-            label32.Size = new Size(230, 36);
+            label32.Size = new Size(203, 31);
             label32.TabIndex = 32;
             label32.Text = "Ingrese la palabra";
             // 
@@ -96,23 +97,27 @@
             // 
             label33.AutoSize = true;
             label33.Font = new Font("Segoe UI", 13.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label33.Location = new Point(14, 10);
+            label33.Location = new Point(12, 9);
             label33.Name = "label33";
-            label33.Size = new Size(181, 36);
+            label33.Size = new Size(0, 31);
             label33.TabIndex = 33;
-            label33.Text = "Tiempo 12:00";
+            label33.Click += label33_Click;
+            // 
+            // timer1
+            // 
+            timer1.Tick += tiempo_Tick;
             // 
             // Form2
             // 
-            AutoScaleDimensions = new SizeF(9F, 23F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(798, 843);
+            ClientSize = new Size(709, 733);
             Controls.Add(label33);
             Controls.Add(label32);
             Controls.Add(textBox1);
             Controls.Add(label2);
             Name = "Form2";
-            Text = "Form2";
+            Text = "Wordle juego";
             Load += Form2_Load;
             ResumeLayout(false);
             PerformLayout();
@@ -125,5 +130,6 @@
         private TextBox textBox1;
         private Label label32;
         private Label label33;
+        private System.Windows.Forms.Timer timer1;
     }
 }

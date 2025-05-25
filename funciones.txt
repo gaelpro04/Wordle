@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <stdio.h>
 
 __declspec(dllexport) int __stdcall suma(int a, int b) {
 	return a + b;
@@ -261,6 +262,91 @@ __declspec(dllexport) int* __stdcall verificarAmarillos(char* palabraUsuario, ch
 			fin :
 	}
 	return arregloAmarillos;
+}
+
+//Funcion que verificar si el usuario ingreso la palabra correcta
+__declspec(dllexport) int __stdcall verificarVictoria(int* arregloVerdes, int cantidadLetras) {
+
+	int banderaRetornada = 1;
+
+	//Apunto el arreglo a esi y ecx sera el contador que verifica si llego al limite del arreglo.
+	//Estara comprobando en cada elemento si hy un cero. Si lo hay cambia la bandera a cero y por lo
+	//tanto no ha ganado.
+	__asm {
+		mov esi, arregloVerdes
+		mov ecx, 0
+		mov edx, cantidadLetras
+
+		COMPROBACIOUNOS:
+			cmp ecx, edx
+			je FINAL2
+
+			mov eax, [esi]
+
+			cmp eax, 1
+			jne FINAL
+
+			add esi, 4
+			inc ecx
+			jmp COMPROBACIOUNOS
+
+		FINAL:
+			mov banderaRetornada, 0	
+				
+		FINAL2:
+	}
+
+	return banderaRetornada;
+}
+
+//Funcion que regresa el tiempo de ejecucion actual del sistrma
+__declspec(dllexport) long __stdcall obtenerTiempo() {
+
+	long tiempo = 0;
+
+	//Llamamos la funcion GetTickCount que nos da el tiempo de ejecucion actual.
+
+	//Lo mete en eax, por lo tanto movemos eax a la variable que se retornara.
+	__asm {
+		call GetTickCount
+		mov tiempo, eax
+	}
+
+	return tiempo;
+}
+
+//Funcion para saber si ya hizo los 6 intentos. Si los hizo quiere decir que puede que perdio(puede que el ultimo intento haya ganado
+// pero por esto mismo se verifica antes si gano)
+__declspec(dllexport) int verificarDerrota(int intentos) {
+	
+	int banderaRetornada = 0;
+
+	__asm {
+		mov ecx, intentos
+
+		cmp ecx, 6
+		je FINAL
+		jmp NOFINAL
+
+		FINAL:
+			mov banderaRetornada, 1
+
+		NOFINAL:
+	}
+
+	return banderaRetornada;
+}
+
+//Funcion que permite convertir los milisegundo y tiempo absoluto en segundos de tipo int
+__declspec(dllexport) int operacionTiempou(UINT tiempoFinal, UINT tiempoInicio, UINT tiempoAbsoluto) {
+
+	int tiempoSegundos = 0;
+
+	__asm {
+
+	}
+
+	return tiempoSegundos;
 }
 
 

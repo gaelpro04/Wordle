@@ -80,7 +80,7 @@
             Font = new Font("Segoe UI Historic", 19.8000011F, FontStyle.Bold, GraphicsUnit.Point, 0);
             Margin = new Padding(7);
             Name = "Form1";
-            Text = "Form1";
+            Text = "Wordle";
             Load += Form1_Load;
             ResumeLayout(false);
             PerformLayout();

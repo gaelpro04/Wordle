@@ -5,6 +5,7 @@ namespace Wordle
         public Form1()
         {
             InitializeComponent();
+            this.StartPosition = FormStartPosition.CenterScreen;
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -32,8 +33,7 @@ namespace Wordle
 
                     this.Hide();
                     Form2 juego = new Form2(dificultad);
-                    juego.ShowDialog();
-                    this.Close();
+                    juego.Show();
                 }
             }
                 

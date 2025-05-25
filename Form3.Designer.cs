@@ -84,7 +84,7 @@
             Controls.Add(button1);
             Controls.Add(label1);
             Name = "Form3";
-            Text = "Form3";
+            Text = "Dificultad";
             ResumeLayout(false);
             PerformLayout();
         }

@@ -21,15 +21,23 @@ namespace Wordle
             // see https://aka.ms/applicationconfiguration.
 
 
-            int resultado = suma(4, 5);
-            Console.WriteLine(resultado);
+            
 
-            Console.WriteLine("Hola hermano");
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);   
 
-            resultado = resta(4, 5);
-            Console.WriteLine(resultado);
-     
-            Application.Run(new Form1());
+            Application.Run(new AppContext());
+        }
+    }
+
+    public class AppContext : ApplicationContext
+    {
+        public AppContext()
+        {
+            var form1 = new Form1();
+            form1.FormClosed += (s, e) => ExitThread(); 
+
+            form1.Show();
         }
     }
 }
