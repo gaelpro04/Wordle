@@ -1,0 +1,429 @@
+#include <windows.h>
+#include <stdio.h>
+
+__declspec(dllexport) int __stdcall suma(int a, int b) {
+	return a + b;
+}
+
+__declspec(dllexport) int __stdcall resta(int a, int b) {
+	return a - b;
+}
+
+//Metodo para generar un numero random dentro de ASM
+__declspec(dllexport) int __stdcall generadorNumeroRandom() {
+
+	int numeroGenerado;
+
+	//rdtsc lee el tiempo de ejecucion del CPU en edx:eax, luego se mezclan bits de edx con eax.
+	//Movemos 10 a ecx que sera nuestro maximo(realmente 9 por la operacion) y se divido eax entre
+	//ecx es decir eax/10.
+
+	//Ya por ultimo se mueve el residuo a numeroGenerado.
+	__asm {
+		rdtsc
+		xor edx, eax
+		xor edx, edx
+		mov ecx, 10
+		div ecx
+		mov numeroGenerado, edx
+	}
+
+	return numeroGenerado;
+}
+
+//Metodo para verificar la dificultad del juego
+__declspec(dllexport) int __stdcall verificarDificultad(char* dificultad) {
+
+	//Se crean las variables necesarias, es decir la dificultad final(dependiendo de la dificultad identificada se asingara un valor)
+	//ademas los arreglos de cada dificultad para poder compararla.
+	int nuevaDificultad;
+	char facil[] = "Facil";
+	char normal[] = "Normal";
+	char dificil[] = "Dificil";
+
+	//Basicamente se asigna al inicio el -1 para dejar definido que no se encontro, pero con las comparaciones si una de los tres 
+	//es igual entonces se cambia a otro numero entero
+
+	//Se mueve el puntero de dificultad a un registro para recorrer y tambien la dificultad base para comparar en otro registro.
+
+	//Mete los caracteres del mismo indice a registos y los compara, si son iguales entonces sigue recorriendo hasta encontrar el 0 es decir
+	//caracter nulo
+
+	//Si no coinciden con un solo caracter quiere decir que no son iguales, por lo tanto pasa a compara con otra dificultad, ya al ultimo que no
+	//es igual a la ultima dificultad simplemente termina el codigo de ASM.
+
+	//Si son iguales se asigna un nuevo valora dificultad mediante dirigiendolo a la etiqueta correspondiente
+	__asm {
+
+		mov nuevaDificultad, -1
+
+		TESTFACIL:
+		mov esi, dificultad
+			lea edi, facil
+
+			CICLO1 :
+		mov al, [esi]
+			mov bl, [edi]
+			cmp al, bl
+			jne TESTNORMAL
+
+			cmp al, 0
+			je IGUALESFACIL
+			inc esi
+			inc edi
+
+			jmp CICLO1
+
+			TESTNORMAL :
+		mov esi, dificultad
+			lea edi, normal
+
+			CICLO2 :
+		mov al, [esi]
+			mov bl, [edi]
+			cmp al, bl
+			jne TESTDIFICIL
+
+
+			cmp al, 0
+			je IGUALESNORMAL
+			inc esi
+			inc edi
+
+
+			jmp CICLO2
+
+			TESTDIFICIL :
+		mov esi, dificultad
+			lea edi, dificil
+
+			CICLO3 :
+		mov al, [esi]
+			mov bl, [edi]
+			cmp al, bl
+			jne FIN
+
+			cmp al, 0
+			je IGUALESDIFICIL
+			inc esi
+			inc edi
+
+			jmp CICLO3
+
+			IGUALESFACIL :
+		mov nuevaDificultad, 1
+			jmp FIN
+
+			IGUALESNORMAL :
+		mov nuevaDificultad, 2
+			jmp FIN
+
+			IGUALESDIFICIL :
+		mov nuevaDificultad, 3
+			jmp FIN
+
+			FIN :
+	}
+
+	return nuevaDificultad;
+}
+
+//Funcion para obtener la palabra con el indice generado y la dificultad identificada
+__declspec(dllexport) char* __stdcall obtenerPalabra(char* banco[], int index) {
+
+	//Se asgina null a la variable donde se asignara la palabra para no generar errores
+	char* palabraSeleccionada = NULL;
+
+	//Consiste en primero verificar si el indice ingresado es valido, primero moviendo el indice a eax y se compara,
+	//sino simplemente se mete un cero a palabraSelccionada
+
+	//Ahora se mete a esi el puntero del arreglo y mediante la suma del puntero(ubicacion en memoria con el indice multplicado por cuatro por que cada char* vale 4 bytes)
+	//se obtiene la palabra del arreglo, ahora simplemente se mueve esa ubicacion en palabraSeleccionada para posteriormente regresarla
+	__asm {
+		mov eax, index
+		cmp eax, 9
+		ja FUERA
+
+		mov esi, banco
+		mov eax, [esi + eax * 4]
+		mov palabraSeleccionada, eax
+		jmp FIN
+
+		FUERA :
+		mov palabraSeleccionada, 0
+
+			FIN :
+	}
+
+	return palabraSeleccionada;
+}
+
+//Funcion que cuenta las letras de una palabra
+__declspec(dllexport) int __stdcall cantidadLetrasPalabra(char* palabra) {
+
+	//Se crea la variable que almacenara la cantidad de palabras
+	int cantidadLetras = 0;
+
+	//Mueve la ubicacion de memoria a esi para iterar.
+	//Limpia ecx para empezar a contar.
+	//Cuando empieza el ciclo, recorre cada elemento, si llega a cero quiere decir que es el caracter nulo
+	//por lo tanto se dirige a otra etiqueta, ademas sino es igual a cero, se incrementa ecx y esi para la siguiente iteracion
+	__asm {
+		mov esi, palabra
+		mov ecx, 0
+
+		CONTADOR:
+		mov al, [esi]
+
+			cmp al, 0
+			je ACABO
+
+			inc esi
+			inc ecx
+			jmp CONTADOR
+
+			ACABO :
+		mov cantidadLetras, ecx
+	}
+
+
+	return cantidadLetras;
+}
+
+//Metodo que verifica los espacios verde con el arreglo booleano DAB
+__declspec(dllexport) int* __stdcall verificarVerdes(char* palabraUsuario, char* palabraAdivinar, int cantidadLetras) {
+	int* arregloVerdes = (int*)calloc(cantidadLetras, sizeof(int));
+	int indice = 0;
+
+	__asm {
+		mov ecx, arregloVerdes;
+		mov edx, indice
+			mov esi, palabraUsuario
+			mov edi, palabraAdivinar
+
+			//voy comparando letra por letro y me voy moviendo en la palabra con el edx que es el indice
+			ciclo1 :
+		mov al, [esi + edx]
+			mov bl, [edi + edx]
+			cmp al, bl
+			jne noIgual
+			mov dword ptr[ecx + edx * 4], 1
+
+			noIgual :
+			inc edx
+			cmp edx, cantidadLetras
+			jl ciclo1
+	}
+
+	return arregloVerdes;
+}
+
+//Metodo que verifica los espacios amarillos con un arreglo booleano 
+__declspec(dllexport) int* __stdcall verificarAmarillos(char* palabraUsuario, char* palabraAdivinar, int cantidadLetras) {
+	int* arregloAmarillos = (int*)calloc(cantidadLetras, sizeof(int));
+	int indice = 0;
+
+	__asm {
+		mov ecx, arregloAmarillos
+		mov esi, palabraUsuario
+		mov edi, palabraAdivinar
+		mov ebx, indice
+
+		ciclo1 :
+		cmp ebx, cantidadLetras
+			jge fin
+
+			mov al, [esi + ebx]
+			mov edx, 0
+
+			ciclo2 :
+			cmp edx, cantidadLetras
+			jge siguiente
+
+			cmp ebx, edx
+			je noIgual
+
+			mov ah, [edi + edx]
+			cmp al, ah
+			jne noIgual
+
+
+			mov dword ptr[ecx + ebx * 4], 1
+			jmp siguiente
+
+			noIgual :
+		inc edx
+			jmp ciclo2
+
+			siguiente :
+		inc ebx
+			jmp ciclo1
+
+			fin :
+	}
+	return arregloAmarillos;
+}
+
+//Funcion que verificar si el usuario ingreso la palabra correcta
+__declspec(dllexport) int __stdcall verificarVictoria(int* arregloVerdes, int cantidadLetras) {
+
+	int banderaRetornada = 1;
+
+	//Apunto el arreglo a esi y ecx sera el contador que verifica si llego al limite del arreglo.
+	//Estara comprobando en cada elemento si hy un cero. Si lo hay cambia la bandera a cero y por lo
+	//tanto no ha ganado.
+	__asm {
+		mov esi, arregloVerdes
+		mov ecx, 0
+		mov edx, cantidadLetras
+
+		COMPROBACIOUNOS :
+		cmp ecx, edx
+			je FINAL2
+
+			mov eax, [esi]
+
+			cmp eax, 1
+			jne FINAL
+
+			add esi, 4
+			inc ecx
+			jmp COMPROBACIOUNOS
+
+			FINAL :
+		mov banderaRetornada, 0
+
+			FINAL2 :
+	}
+
+	return banderaRetornada;
+}
+
+//Funcion que regresa el tiempo de ejecucion actual del sistrma
+__declspec(dllexport) long __stdcall obtenerTiempo() {
+
+	long tiempo = 0;
+
+	//Llamamos la funcion GetTickCount que nos da el tiempo de ejecucion actual.
+
+	//Lo mete en eax, por lo tanto movemos eax a la variable que se retornara.
+	__asm {
+		call GetTickCount
+		mov tiempo, eax
+	}
+
+	return tiempo;
+}
+
+//Funcion para saber si ya hizo los 6 intentos. Si los hizo quiere decir que puede que perdio(puede que el ultimo intento haya ganado
+// pero por esto mismo se verifica antes si gano)
+__declspec(dllexport) int verificarDerrota(int intentos) {
+
+	int banderaRetornada = 0;
+
+	__asm {
+		mov ecx, intentos
+
+		cmp ecx, 6
+		je FINAL
+		jmp NOFINAL
+
+		FINAL :
+		mov banderaRetornada, 1
+
+			NOFINAL :
+	}
+
+	return banderaRetornada;
+}
+
+//Funcion que permite convertir los milisegundo y tiempo absoluto en segundos de tipo int
+__declspec(dllexport) int operacionTiempou(UINT tiempoFinal, UINT tiempoInicio, UINT tiempoAbsoluto) {
+
+	int tiempoSegundos = 0;
+
+	__asm {
+
+	}
+
+	return tiempoSegundos;
+}
+
+__declspec(dllexport) char* __stdcall leerArchivo(char* nombreArchivo) {
+
+	char* contenidoArchivo = NULL;
+	HANDLE hFile;
+	DWORD fileSize;
+	DWORD bytesRead;
+
+	__asm {
+		// Abrir el archivo
+		push 0                          // hTemplateFile
+		push 80h                        // FILE_ATTRIBUTE_NORMAL
+		push 3                          // OPEN_EXISTING
+		push 0                          // lpSecurityAttributes
+		push 0                          // dwShareMode
+		push 80000000h                  // GENERIC_READ
+		push nombreArchivo              // lpFileName
+		call CreateFileA
+		mov hFile, eax
+
+		// Verificar si el archivo se abrió correctamente
+		cmp eax, -1                     // INVALID_HANDLE_VALUE
+		je error_archivo
+
+		// Obtener tamaño del archivo
+		push 0                          // lpFileSizeHigh
+		push hFile                      // hFile
+		call GetFileSizeEx
+		mov fileSize, eax
+
+		// Verificar si el archivo tiene contenido
+		cmp eax, 0
+		je cerrar_archivo
+
+		// Asignar memoria para el contenido (tamaño + 1 para null terminator)
+		mov eax, fileSize
+		inc eax                         // +1 para null terminator
+		push eax                        // dwBytes
+		push 0                          // uFlags (GMEM_FIXED)
+		call GlobalAlloc
+		mov contenidoArchivo, eax
+
+		// Verificar si se asignó memoria
+		cmp eax, 0
+		je cerrar_archivo
+
+		// Leer el archivo
+		push 0                          // lpOverlapped
+		lea eax, bytesRead
+		push eax                        // lpNumberOfBytesRead
+		push fileSize                   // nNumberOfBytesToRead
+		push contenidoArchivo           // lpBuffer
+		push hFile                      // hFile
+		call ReadFile
+
+		// Agregar terminador null
+		mov eax, contenidoArchivo
+		mov ebx, bytesRead
+		add eax, ebx
+		mov byte ptr[eax], 0
+
+		// Cerrar archivo
+		push hFile
+		call CloseHandle
+
+		jmp fin_funcion
+
+		cerrar_archivo :
+		push hFile
+			call CloseHandle
+
+			error_archivo :
+		mov contenidoArchivo, 0     // Retornar NULL en caso de error
+
+			fin_funcion :
+	}
+
+	return contenidoArchivo;
+}

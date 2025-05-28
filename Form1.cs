@@ -20,7 +20,12 @@ namespace Wordle
 
         private void button2_Click(object sender, EventArgs e)
         {
-
+            using(Form4 form4 = new Form4())
+            {
+                this.Hide();
+                Form4 puntuacion = new Form4();
+                puntuacion.Show();
+            }
         }
 
         private void button1_Click(object sender, EventArgs e)

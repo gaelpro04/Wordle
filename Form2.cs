@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -43,14 +44,14 @@ namespace Wordle
         [DllImport("DllPro.dll", CallingConvention = CallingConvention.StdCall)]
         public static extern int verificarDerrota(int intentos);
 
-        private string[] bancoFacil = { "comer", "subir", "beber", " sacar", "decir", "mirar", "poner", "abrir", "tomar", "pagar" };
+        private string[] bancoFacil = { "comer", "subir", "beber", "sacar", "decir", "mirar", "poner", "abrir", "tomar", "pagar" };
         private string[] bancoNormal = { "colina", "esfera", "rodaje", "luchar", "tomate", "granos", "grieta", "cerrar", "sender", "salida" };
         private string[] bancoDificil = { "ventana", "maestro", "zapatos", "archivo", "cuerpos", "empresa", "hombres", "brindar", "relojes", "carrera" };
         private string palabraSeleccionada;
         private string palabraUsuario;
         private int numeroDificultad;
         private int fila;
-        private uint tiempoAbsoluto, tiempoInicio;
+        private uint tiempoAbsoluto, tiempoInicio, tiempoMili;
         private int minutos;
         private string tiempo;
         private int intentos; 
@@ -247,14 +248,31 @@ namespace Wordle
                 int[] amarillos = new int[longitudEsperada];
                 Marshal.Copy(ptrAmarillos, amarillos, 0, longitudEsperada);
 
+                //pasar esto a esamblador
                 for (int i = 0; i < longitudEsperada; i++)
                 {
                     if (amarillos[i] == 1 && verdes[i] == 0)
                     {
-                        labelsLetras[fila - 1][i].BackColor = Color.Yellow;
+                        char letraActual = letrasPalabraUsuario[i];
+                        bool yaVerde = false;
+                        for (int j = 0; j < longitudEsperada; j++)
+                        {
+                            if (letraActual == palabraSeleccionada[j] && verdes[j] == 1)
+                            {
+                                yaVerde = true;
+                                break;
+                            }
+                        }
+                        if (!yaVerde)
+                        {
+                            labelsLetras[fila - 1][i].BackColor = Color.Yellow;
+                        }
                     }
+
                 }
                 ++intentos;
+
+                Console.WriteLine($"Tiempo: {tiempoMili}");
 
                 //Seccion para verificar victoria......
                 int verificadorVictoria = verificarVictoria(ptrVerdes, longitudEsperada);
@@ -265,7 +283,12 @@ namespace Wordle
 
                     DialogResult resultado = 0;
                     timer1.Stop();
-                    resultado = MessageBox.Show($"Has ganado!!. Tiempo: {tiempo} \n Deseas reiniciar el juego?", "Victoria", MessageBoxButtons.YesNo);
+                    //resultado = MessageBox.Show($"Has ganado!!. Tiempo: {tiempo} \n Deseas reiniciar el juego?", "Victoria", MessageBoxButtons.YesNo);
+                    Form5 form5 = new Form5(tiempo); 
+                    resultado = form5.ShowDialog();
+                    string nombreUsuario = form5.getNombreUsuario();
+                    Console.WriteLine(nombreUsuario);
+                    
 
                     if (resultado == DialogResult.Yes)
                     {
@@ -304,9 +327,6 @@ namespace Wordle
                 }
             }
         }
-
-
-
         private IntPtr[] StringArToIntPtrAr(String[] banco)
         {
             IntPtr[] bancoPtr = new IntPtr[banco.Length];
@@ -355,7 +375,7 @@ namespace Wordle
                 tiempo = tiempoSeg + " s";
             }
 
-                
+            tiempoMili = tiempoAbsoluto;
         }
 
         private void label2_Click(object sender, EventArgs e)
