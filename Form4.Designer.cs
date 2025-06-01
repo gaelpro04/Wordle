@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             label1 = new Label();
+            button1 = new Button();
             SuspendLayout();
             // 
             // label1
@@ -36,18 +37,29 @@
             label1.AutoSize = true;
             label1.Font = new Font("Arial", 27.9402981F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label1.ForeColor = Color.LimeGreen;
-            label1.Location = new Point(221, 55);
+            label1.Location = new Point(147, 42);
             label1.Name = "label1";
-            label1.Size = new Size(369, 61);
+            label1.Size = new Size(333, 55);
             label1.TabIndex = 0;
             label1.Text = "Puntuaciones";
             label1.Click += label1_Click_1;
             // 
+            // button1
+            // 
+            button1.Location = new Point(262, 535);
+            button1.Name = "button1";
+            button1.Size = new Size(94, 29);
+            button1.TabIndex = 1;
+            button1.Text = "Regresar";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
+            // 
             // Form4
             // 
-            AutoScaleDimensions = new SizeF(9F, 23F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 688);
+            ClientSize = new Size(619, 598);
+            Controls.Add(button1);
             Controls.Add(label1);
             Name = "Form4";
             Text = "Form4";
@@ -59,5 +71,6 @@
         #endregion
 
         private Label label1;
+        private Button button1;
     }
 }

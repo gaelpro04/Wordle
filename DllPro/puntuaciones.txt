@@ -1,5 +1,0 @@
-luis,12345
-gael,12493
-kitzi,12591
-patron,23585
-oscar,827542

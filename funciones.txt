@@ -338,15 +338,47 @@ __declspec(dllexport) int verificarDerrota(int intentos) {
 }
 
 //Funcion que permite convertir los milisegundo y tiempo absoluto en segundos de tipo int
-__declspec(dllexport) int operacionTiempou(UINT tiempoFinal, UINT tiempoInicio, UINT tiempoAbsoluto) {
+__declspec(dllexport) int operacionTiempou(int tiempoFinal, int tiempoInicio) {
 
-	int tiempoSegundos = 0;
+	int tiempoSegundos = -1;
 
 	__asm {
+		mov eax, tiempoFinal
+		sub eax, tiempoInicio
+		xor edx, edx
+
+		mov ecx, 1000
+		div ecx
+
+		mov tiempoSegundos, eax
 
 	}
 
 	return tiempoSegundos;
+}
+
+//Funcion para saber si es mayor a uno el tamanio actual de lineas del archivo
+__declspec(dllexport) int verificarTamanioArc(int tiempoActual) {
+
+	int mayor;
+
+	__asm {
+		mov eax, tiempoActual
+		cmp eax, 0
+		jg MAYOR
+		jmp SALIDA
+
+		MAYOR:
+			mov mayor, 1
+			jmp SALIDA
+
+		NOMAYOR:
+			mov mayor, 0
+
+		SALIDA:
+	}
+
+	return mayor;
 }
 
 

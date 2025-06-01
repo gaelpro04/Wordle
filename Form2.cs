@@ -44,6 +44,12 @@ namespace Wordle
         [DllImport("DllPro.dll", CallingConvention = CallingConvention.StdCall)]
         public static extern int verificarDerrota(int intentos);
 
+        [DllImport("DllPro.dll", CallingConvention = CallingConvention.StdCall)]
+        public static extern int verificarTamanioArc(int tiempoActual);
+
+        [DllImport("DllPro.dll", CallingConvention = CallingConvention.StdCall)]
+        public static extern void ordenamientoPuntuaciones(long[] tiempos, IntPtr[] nombres, int n);
+
         private string[] bancoFacil = { "comer", "subir", "beber", "sacar", "decir", "mirar", "poner", "abrir", "tomar", "pagar" };
         private string[] bancoNormal = { "colina", "esfera", "rodaje", "luchar", "tomate", "granos", "grieta", "cerrar", "sender", "salida" };
         private string[] bancoDificil = { "ventana", "maestro", "zapatos", "archivo", "cuerpos", "empresa", "hombres", "brindar", "relojes", "carrera" };
@@ -54,7 +60,9 @@ namespace Wordle
         private uint tiempoAbsoluto, tiempoInicio, tiempoMili;
         private int minutos;
         private string tiempo;
-        private int intentos; 
+        private int intentos;
+        private string[] nombres;
+        private long[] tiempos;
     
         private List<Label[]> labelsLetras;
         public Form2(string dificultadSeleccionada)
@@ -63,6 +71,16 @@ namespace Wordle
             this.StartPosition = FormStartPosition.CenterScreen;
             string dificultad = dificultadSeleccionada;
             labelsLetras = new List<Label[]>();
+
+
+            //Asignar tamanio a los arreglos de los datos
+            string ruta = "C:\\Users\\sgsg_\\source\\repos\\Wordle\\puntuaciones.txt";
+
+            string[] actTamanio = File.ReadAllLines(ruta);
+            int tamanioActual = int.Parse(actTamanio[0]);
+
+            nombres = new string[tamanioActual+1];
+            tiempos = new long[tamanioActual+1];
             intentos = 0;
 
             minutos = 0;
@@ -284,10 +302,21 @@ namespace Wordle
                     DialogResult resultado = 0;
                     timer1.Stop();
                     //resultado = MessageBox.Show($"Has ganado!!. Tiempo: {tiempo} \n Deseas reiniciar el juego?", "Victoria", MessageBoxButtons.YesNo);
-                    Form5 form5 = new Form5(tiempo); 
+                    Form5 form5 = new Form5(tiempoMili); 
                     resultado = form5.ShowDialog();
                     string nombreUsuario = form5.getNombreUsuario();
+
                     Console.WriteLine(nombreUsuario);
+                    Console.WriteLine(tiempoMili);
+                    Console.WriteLine(tiempo);
+
+                    int nombreValida = cantidadLetrasPalabra(nombreUsuario);
+                    int verificador = verificarTamanioArc(nombreValida);
+                    if (verificador == 1)
+                    {
+                        lecturaArchivo(nombreUsuario, tiempoMili);
+                    }
+                    
                     
 
                     if (resultado == DialogResult.Yes)
@@ -339,8 +368,14 @@ namespace Wordle
             return bancoPtr;
         }
 
+        private IntPtr LongArToIntPtrAr(long[] banco)
+        {
+           GCHandle handle = GCHandle.Alloc(banco, GCHandleType.Pinned);
+
+           return handle.AddrOfPinnedObject();
+        }
+
         //Metodo para obtener el tiempo actual en string y en formato de tiempo
-        //FALTA IMPLEMENTAR LAS OPERACIONES EN ASM YA QUE CONVERGUE A LO LOGICO LAS OPERACIONES AQUI.
         private void tiempo_Tick(object sender, EventArgs e)
         {
             uint tiempoFinal = obtenerTiempo();
@@ -376,6 +411,47 @@ namespace Wordle
             }
 
             tiempoMili = tiempoAbsoluto;
+        }
+
+        //Metodo encargado de la lectura y escritua de archivos puntuaciones
+        //Ruta gael: C:\Users\sgsg_\source\repos\Wordle\puntuaciones.txt
+        //Ruta Diego: 
+        private void lecturaArchivo(string nombre, long tiempo)
+        {
+            string ruta = "C:\\Users\\sgsg_\\source\\repos\\Wordle\\puntuaciones.txt";
+
+            string[] actTamanio = File.ReadAllLines(ruta);
+            int tamanioActual = int.Parse(actTamanio[0]);
+            tamanioActual++;
+            actTamanio[0] = tamanioActual.ToString();
+            File.WriteAllLines(ruta, actTamanio);
+
+            int verificador = verificarTamanioArc(tamanioActual);
+            if (verificador == 1)
+            {
+                int contador = 0;
+                for (int i = 1; i < actTamanio.Length; ++i)
+                {
+                    string[] lineas = actTamanio[i].Split(',');
+                    if (lineas.Length >= 2)
+                    {
+                        nombres[contador] = lineas[0];
+                        tiempos[contador] = long.Parse(lineas[1].Trim());
+                        Console.WriteLine(nombres[contador]);
+                        Console.WriteLine(tiempos[contador]);
+                        ++contador;
+                    }
+
+                }
+
+                // ORDENAMIENTO...
+
+            } else
+            {
+                string nuevoDato = nombre + "," + tiempo;
+                File.AppendAllText(ruta, nuevoDato + Environment.NewLine);
+            }
+            Console.WriteLine(nombres.Length);
         }
 
         private void label2_Click(object sender, EventArgs e)

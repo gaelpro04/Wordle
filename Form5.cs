@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -14,9 +15,18 @@ namespace Wordle
     public partial class Form5 : Form
     {
         private string nombreUsuario = "";
-        public Form5(String tiempo)
+        private long tiempo;
+        private string[] nombres;
+        private long[] tiempos;
+
+        public Form5(long tiempo)
         {
             InitializeComponent();
+
+
+            nombres = new string[100];
+            tiempos = new long[100];
+            this.tiempo = tiempo;
             this.StartPosition = FormStartPosition.CenterScreen;
             label1.Text = "Has ganado!!.Tiempo: " + tiempo + "\n Deseas reiniciar el juego";
             button1.Enabled = false;
@@ -45,6 +55,8 @@ namespace Wordle
             button1.Enabled = true;
         }
 
+
+        
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
             if(textBox1.Text.Length > 0)
