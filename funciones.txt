@@ -381,4 +381,75 @@ __declspec(dllexport) int verificarTamanioArc(int tiempoActual) {
 	return mayor;
 }
 
+//Funcion que verifica el tamanio de un arreglo
+__declspec(dllexport) int lineasDisponibles(int tamanioActual) {
+
+	int hayQueLeer;
+
+	__asm {
+		mov hayQueLeer, 0
+		
+		mov eax, tamanioActual
+		cmp eax, 0
+		jg MAYOR
+
+		jmp SALIDA
+
+		MAYOR:
+			mov hayQueLeer, 1
+
+		SALIDA:
+	}
+
+	return hayQueLeer;
+}
+
+//Funcion que ordena un arreglo de longs y otro arrelo en base al arreglo de los longs
+__declspec(dllexport) void ordenamientoPuntuaciones(long* tiempos, char** nombres, int n)
+{
+	__asm {
+		mov esi, tiempos
+		mov edi, nombres
+		mov ecx, n
+		dec ecx
+		outer_loop :
+		push ecx
+			xor ebx, ebx; índice interno(i)
+			inner_loop:
+		mov eax, ebx
+			inc eax
+			cmp eax, ecx
+			jg end_inner
+
+			
+			mov edx, [esi + ebx * 4]
+				cmp edx, [esi + eax * 4]
+				jle skip_swap
+
+			
+				xchg edx, [esi + eax * 4]
+				mov[esi + ebx * 4], edx
+
+			
+				mov edx, [edi + ebx * 4]
+				xchg edx, [edi + eax * 4]
+				mov[edi + ebx * 4], edx
+
+				skip_swap :
+			inc ebx
+				jmp inner_loop
+
+				end_inner :
+			pop ecx
+				loop outer_loop
+	}
+}
+
+//Metodo que mete un elemento al final del arreglo 
+__declspec(dllexport) void meterNuevoElemento(long* tiempos, char** nombres, int n) {
+
+	__asm {
+
+	}
+}
 
