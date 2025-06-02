@@ -15,11 +15,11 @@ namespace Wordle
     public partial class Form5 : Form
     {
         private string nombreUsuario = "";
-        private long tiempo;
+        private int tiempo;
         private string[] nombres;
         private long[] tiempos;
 
-        public Form5(long tiempo)
+        public Form5(int tiempo)
         {
             InitializeComponent();
 
@@ -28,7 +28,7 @@ namespace Wordle
             tiempos = new long[100];
             this.tiempo = tiempo;
             this.StartPosition = FormStartPosition.CenterScreen;
-            label1.Text = "Has ganado!!.Tiempo: " + tiempo + "\n Deseas reiniciar el juego";
+            label1.Text = "Has ganado!!.Tiempo: " + tiempo + "s \n Deseas reiniciar el juego";
             button1.Enabled = false;
             button3.Enabled = false;
             button3.Click += button3_Click;
@@ -69,6 +69,11 @@ namespace Wordle
         public string getNombreUsuario()
         {
             return nombreUsuario;
+        }
+
+        public int getTiempo()
+        {
+            return tiempo;
         }
     }
 }

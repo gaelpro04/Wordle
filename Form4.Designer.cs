@@ -58,11 +58,12 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = SystemColors.Window;
             ClientSize = new Size(619, 598);
             Controls.Add(button1);
             Controls.Add(label1);
             Name = "Form4";
-            Text = "Form4";
+            Text = "Puntuaciones";
             Load += Form4_Load;
             ResumeLayout(false);
             PerformLayout();

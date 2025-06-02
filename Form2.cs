@@ -39,7 +39,7 @@ namespace Wordle
         public static extern int verificarVictoria(IntPtr arregloVerdes, int cantidadLetras);
 
         [DllImport("DllPro.dll", CallingConvention = CallingConvention.StdCall)]
-        public static extern uint obtenerTiempo();
+        public static extern int obtenerTiempo();
 
         [DllImport("DllPro.dll", CallingConvention = CallingConvention.StdCall)]
         public static extern int verificarDerrota(int intentos);
@@ -48,7 +48,12 @@ namespace Wordle
         public static extern int verificarTamanioArc(int tiempoActual);
 
         [DllImport("DllPro.dll", CallingConvention = CallingConvention.StdCall)]
-        public static extern void ordenamientoPuntuaciones(long[] tiempos, IntPtr[] nombres, int n);
+        public static extern void ordenamientoPuntuaciones(IntPtr tiempos, IntPtr nombres, int n);
+
+        [DllImport("DllPro.dll", CallingConvention = CallingConvention.StdCall)]
+        public static extern int calculoTiempo(int tiempoInicio, int tiempoFinal);
+
+
 
         private string[] bancoFacil = { "comer", "subir", "beber", "sacar", "decir", "mirar", "poner", "abrir", "tomar", "pagar" };
         private string[] bancoNormal = { "colina", "esfera", "rodaje", "luchar", "tomate", "granos", "grieta", "cerrar", "sender", "salida" };
@@ -57,13 +62,14 @@ namespace Wordle
         private string palabraUsuario;
         private int numeroDificultad;
         private int fila;
-        private uint tiempoAbsoluto, tiempoInicio, tiempoMili;
+        private int tiempoAbsoluto, tiempoInicio, tiempoMili;
         private int minutos;
         private string tiempo;
         private int intentos;
         private string[] nombres;
-        private long[] tiempos;
-    
+        private int[] tiempos;
+        private GCHandle tiemposHandle;
+
         private List<Label[]> labelsLetras;
         public Form2(string dificultadSeleccionada)
         {
@@ -80,7 +86,7 @@ namespace Wordle
             int tamanioActual = int.Parse(actTamanio[0]);
 
             nombres = new string[tamanioActual+1];
-            tiempos = new long[tamanioActual+1];
+            tiempos = new int[tamanioActual+1];
             intentos = 0;
 
             minutos = 0;
@@ -236,7 +242,6 @@ namespace Wordle
                     return;
                 }
 
-                Console.WriteLine(palabraUsuario);
                 e.SuppressKeyPress = true;
                 textBox1.Text = "";
 
@@ -302,19 +307,15 @@ namespace Wordle
                     DialogResult resultado = 0;
                     timer1.Stop();
                     //resultado = MessageBox.Show($"Has ganado!!. Tiempo: {tiempo} \n Deseas reiniciar el juego?", "Victoria", MessageBoxButtons.YesNo);
-                    Form5 form5 = new Form5(tiempoMili); 
+                    Form5 form5 = new Form5(tiempoAbsoluto); 
                     resultado = form5.ShowDialog();
                     string nombreUsuario = form5.getNombreUsuario();
-
-                    Console.WriteLine(nombreUsuario);
-                    Console.WriteLine(tiempoMili);
-                    Console.WriteLine(tiempo);
 
                     int nombreValida = cantidadLetrasPalabra(nombreUsuario);
                     int verificador = verificarTamanioArc(nombreValida);
                     if (verificador == 1)
                     {
-                        lecturaArchivo(nombreUsuario, tiempoMili);
+                        lecturaArchivo(nombreUsuario, tiempoAbsoluto);
                     }
                     
                     
@@ -368,19 +369,57 @@ namespace Wordle
             return bancoPtr;
         }
 
-        private IntPtr LongArToIntPtrAr(long[] banco)
+        private IntPtr intArToIntPtrAr(int[] banco)
         {
-           GCHandle handle = GCHandle.Alloc(banco, GCHandleType.Pinned);
+           tiemposHandle = GCHandle.Alloc(banco, GCHandleType.Pinned);
 
-           return handle.AddrOfPinnedObject();
+           return tiemposHandle.AddrOfPinnedObject();
         }
+
+        private void LiberarStringArray(IntPtr arregloPtr, int cantidad)
+        {
+            // Liberar cada string individual
+            for (int i = 0; i < cantidad; i++)
+            {
+                IntPtr ptr = Marshal.ReadIntPtr(arregloPtr, i * IntPtr.Size);
+                if (ptr != IntPtr.Zero)
+                {
+                    Marshal.FreeHGlobal(ptr);
+                }
+            }
+
+            // Liberar el array de punteros
+            Marshal.FreeHGlobal(arregloPtr);
+        }
+
+        private IntPtr StringArrayToIntPtr(string[] arreglo)
+        {
+            int longitud = arreglo.Length;
+            IntPtr[] punteros = new IntPtr[longitud];
+
+            // Crear punteros para cada string
+            for (int i = 0; i < longitud; i++)
+            {
+                punteros[i] = Marshal.StringToHGlobalAnsi(arreglo[i]);
+            }
+
+            // Crear array de punteros
+            IntPtr arregloPtr = Marshal.AllocHGlobal(IntPtr.Size * longitud);
+            for (int i = 0; i < longitud; i++)
+            {
+                Marshal.WriteIntPtr(arregloPtr, i * IntPtr.Size, punteros[i]);
+            }
+
+            return arregloPtr;
+        }
+
 
         //Metodo para obtener el tiempo actual en string y en formato de tiempo
         private void tiempo_Tick(object sender, EventArgs e)
         {
-            uint tiempoFinal = obtenerTiempo();
-            uint tiempoAbsoluto = tiempoFinal - tiempoInicio;
-            int tiempoSeg = (int) tiempoAbsoluto / 1000;
+            int tiempoFinal = obtenerTiempo();
+            int tiempoSeg = calculoTiempo(tiempoInicio, tiempoFinal) / 1000;
+            tiempoAbsoluto = tiempoSeg;
 
             if (tiempoSeg > 59)
             {
@@ -410,16 +449,14 @@ namespace Wordle
                 tiempo = tiempoSeg + " s";
             }
 
-            tiempoMili = tiempoAbsoluto;
         }
 
         //Metodo encargado de la lectura y escritua de archivos puntuaciones
         //Ruta gael: C:\Users\sgsg_\source\repos\Wordle\puntuaciones.txt
         //Ruta Diego: 
-        private void lecturaArchivo(string nombre, long tiempo)
+        private void lecturaArchivo(string nombre, int tiempo)
         {
             string ruta = "C:\\Users\\sgsg_\\source\\repos\\Wordle\\puntuaciones.txt";
-
             string[] actTamanio = File.ReadAllLines(ruta);
             int tamanioActual = int.Parse(actTamanio[0]);
             tamanioActual++;
@@ -429,29 +466,76 @@ namespace Wordle
             int verificador = verificarTamanioArc(tamanioActual);
             if (verificador == 1)
             {
+                int[] tiemposTemp = new int[tamanioActual];
+                string[] nombresTemp = new string[tamanioActual];
+
                 int contador = 0;
                 for (int i = 1; i < actTamanio.Length; ++i)
                 {
                     string[] lineas = actTamanio[i].Split(',');
-                    if (lineas.Length >= 2)
+                    if (lineas.Length == 2)
                     {
-                        nombres[contador] = lineas[0];
-                        tiempos[contador] = long.Parse(lineas[1].Trim());
-                        Console.WriteLine(nombres[contador]);
-                        Console.WriteLine(tiempos[contador]);
+                        nombresTemp[contador] = lineas[0];
+                        tiemposTemp[contador] = int.Parse(lineas[1].Trim()) * 1000;
                         ++contador;
                     }
-
                 }
 
-                // ORDENAMIENTO...
+                nombresTemp[contador] = nombre;
+                tiemposTemp[contador] = tiempo * 1000;
 
-            } else
+                Console.WriteLine("=== ANTES DEL ORDENAMIENTO ===");
+                for (int i = 0; i < tamanioActual; i++)
+                {
+                    Console.WriteLine($"{nombresTemp[i]}, {tiemposTemp[i]}");
+                }
+
+                IntPtr tiemposPtr = intArToIntPtrAr(tiemposTemp);
+                IntPtr nombresPtr = StringArrayToIntPtr(nombresTemp);
+
+                ordenamientoPuntuaciones(tiemposPtr, nombresPtr, tamanioActual);
+
+                int[] tiemposOrdenados = new int[tamanioActual];
+                Marshal.Copy(tiemposPtr, tiemposOrdenados, 0, tamanioActual);
+
+                string[] nombresOrdenados = new string[tamanioActual];
+                for (int i = 0; i < tamanioActual; ++i)
+                {
+                    IntPtr actual = Marshal.ReadIntPtr(nombresPtr, i * IntPtr.Size);
+                    nombresOrdenados[i] = Marshal.PtrToStringAnsi(actual);
+                }
+
+                Console.WriteLine("=== DESPUÉS DEL ORDENAMIENTO ===");
+                for (int i = 0; i < tamanioActual; i++)
+                {
+                    Console.WriteLine($"{nombresOrdenados[i]}, {tiemposOrdenados[i]}");
+                }
+
+                LiberarStringArray(nombresPtr, tamanioActual);
+
+                if (tiemposHandle.IsAllocated)
+                {
+                    tiemposHandle.Free();
+                }
+
+                string[] nuevaEscritura = new string[tamanioActual + 1];
+                nuevaEscritura[0] = tamanioActual.ToString();
+
+                int contadorArchivos = 1;
+                for(int i = tamanioActual - 1;i >= 0; i--)
+                {
+                    nuevaEscritura[contadorArchivos] = nombresOrdenados[i] + "," + (tiemposOrdenados[i] / 1000);
+                    ++contadorArchivos;
+                }
+
+                File.WriteAllLines(ruta, nuevaEscritura);
+
+            }
+            else
             {
                 string nuevoDato = nombre + "," + tiempo;
                 File.AppendAllText(ruta, nuevoDato + Environment.NewLine);
             }
-            Console.WriteLine(nombres.Length);
         }
 
         private void label2_Click(object sender, EventArgs e)

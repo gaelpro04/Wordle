@@ -33,7 +33,7 @@ namespace Wordle
             if (verificador == 1)
             {
                 int posicionBaseX = 100;
-                int posicionBaseY = 123;
+                int posicionBaseY = 90;
                 int distanciaX = 172;
                 int distanciaY = 50;
 
@@ -67,21 +67,6 @@ namespace Wordle
                     this.Controls.Add(label);
                 }
             }
-            else
-            {
-                Label label = new Label();
-                label.Name = "label";
-                label.Text = "No hay jugadores disponibles";
-                label.Font = new Font("Segoe UI", 12, FontStyle.Bold);
-                label.Size = new Size(269, 40);
-                label.TextAlign = ContentAlignment.MiddleCenter;
-                label.BorderStyle = BorderStyle.FixedSingle;
-                label.BackColor = Color.LightGray;
-                label.Location = new Point(197, 122);
-                this.Controls.Add(label);
-            }
-
-
         }
         private void Form4_Load(object sender, EventArgs e)
         {

@@ -1,4 +1,7 @@
-3
-Gael,4031
-Oscar,2323
-Mierda,2323
+8
+mimadrellora,9
+when,8
+gatitaxsiempre,5
+mierda,3
+bebitaxsiempre,2
+kitziaxdiego,1
