@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.ApplicationServices;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -15,20 +16,50 @@ namespace Wordle
     {
         [DllImport("DllPro.dll", CallingConvention = CallingConvention.StdCall)]
         public static extern int lineasDisponibles(int tamanioActual);
+
+        private Panel panelPuntuaciones;
+        private Label tituloPuntuaciones;
+        private Button botonRegresar;
         public Form4()
         {
-            InitializeComponent();
             this.StartPosition = FormStartPosition.CenterScreen;
+
+            botonRegresar = new Button();
+            botonRegresar.Text = "Regresar";
+            botonRegresar.Size = new Size(114, 33);
+            botonRegresar.Location = new Point(284, 601);
+            botonRegresar.Click += button1_Click;
+            this.Controls.Add(botonRegresar);
+
+            panelPuntuaciones = new Panel();
+            panelPuntuaciones.AutoScroll = true;
+            panelPuntuaciones.Size = new Size(716, 740);
+            panelPuntuaciones.Location = new Point(10, 10);
+            this.Controls.Add(panelPuntuaciones);
+
+            tituloPuntuaciones = new Label();
+            tituloPuntuaciones.Text = "Puntuaciones";
+            tituloPuntuaciones.Font = new Font("Segoe UI", 26, FontStyle.Bold);
+            tituloPuntuaciones.ForeColor = Color.LimeGreen;
+            tituloPuntuaciones.TextAlign = ContentAlignment.MiddleCenter;
+            tituloPuntuaciones.Size = new Size(369, 61);
+            tituloPuntuaciones.Location = new Point(165, 38);
+            panelPuntuaciones.Controls.Add(tituloPuntuaciones);
+            
+            InitializeComponent();
             agregarPuntuaciones();
         }
 
         private void agregarPuntuaciones()
         {
-            string ruta = "C:\\Users\\sgsg_\\source\\repos\\Wordle\\puntuaciones.txt";
+            //ruta gael
+            //string ruta = "C:\\Users\\sgsg_\\source\\repos\\Wordle\\puntuaciones.txt";
+
+            //ruta diego
+            string ruta = "C:\\Users\\bombo\\OneDrive\\Desktop\\Arqui\\ProyectoFinal\\Wordle\\puntuaciones.txt";
 
             string[] actTamanio = File.ReadAllLines(ruta);
             int tamanioActual = int.Parse(actTamanio[0]);
-
             int verificador = lineasDisponibles(tamanioActual);
             if (verificador == 1)
             {
@@ -36,10 +67,13 @@ namespace Wordle
                 int posicionBaseY = 90;
                 int distanciaX = 172;
                 int distanciaY = 50;
+                int j = 0;
 
-                for (int i = 1; i < actTamanio.Length; i++)
+                for (int i = tamanioActual; i >= 1; i--)
                 {
                     string[] linea = actTamanio[i].Split(",");
+                    if (linea.Length < 2 || string.IsNullOrWhiteSpace(linea[0]))
+                        continue;
                     Label label = new Label();
                     label.Name = "label" + i;
                     label.Text = linea[0];
@@ -48,13 +82,16 @@ namespace Wordle
                     label.TextAlign = ContentAlignment.MiddleCenter;
                     label.BorderStyle = BorderStyle.FixedSingle;
                     label.BackColor = Color.LightGray;
-                    label.Location = new Point(posicionBaseX, posicionBaseY + distanciaY * (i - 1));
-                    this.Controls.Add(label);
+                    label.Location = new Point(posicionBaseX, posicionBaseY + distanciaY * j);
+                    panelPuntuaciones.Controls.Add(label);
+                    j++;
                 }
-
-                for (int i = 1; i < actTamanio.Length; i++)
+                j = 0;
+                for (int i = tamanioActual; i >= 1; i--)
                 {
                     string[] linea = actTamanio[i].Split(",");
+                    if (linea.Length < 2 || string.IsNullOrWhiteSpace(linea[0]))
+                        continue;
                     Label label = new Label();
                     label.Name = "label" + i;
                     label.Text = linea[1];
@@ -63,8 +100,10 @@ namespace Wordle
                     label.TextAlign = ContentAlignment.MiddleCenter;
                     label.BorderStyle = BorderStyle.FixedSingle;
                     label.BackColor = Color.LightGray;
-                    label.Location = new Point(posicionBaseX + distanciaX, posicionBaseY + distanciaY * (i - 1));
-                    this.Controls.Add(label);
+                    label.Location = new Point(posicionBaseX + distanciaX, posicionBaseY + distanciaY * j);
+                    panelPuntuaciones.Controls.Add(label);
+                    j++;
+                    Console.WriteLine(actTamanio[i]);
                 }
             }
         }

@@ -80,7 +80,12 @@ namespace Wordle
 
 
             //Asignar tamanio a los arreglos de los datos
-            string ruta = "C:\\Users\\sgsg_\\source\\repos\\Wordle\\puntuaciones.txt";
+            //ruta gael
+            //string ruta = "C:\\Users\\sgsg_\\source\\repos\\Wordle\\puntuaciones.txt";
+
+            //ruta diego
+            string ruta = "C:\\Users\\bombo\\OneDrive\\Desktop\\Arqui\\ProyectoFinal\\Wordle\\puntuaciones.txt";
+
 
             string[] actTamanio = File.ReadAllLines(ruta);
             int tamanioActual = int.Parse(actTamanio[0]);
@@ -456,7 +461,12 @@ namespace Wordle
         //Ruta Diego: 
         private void lecturaArchivo(string nombre, int tiempo)
         {
-            string ruta = "C:\\Users\\sgsg_\\source\\repos\\Wordle\\puntuaciones.txt";
+            //ruta gael
+            //string ruta = "C:\\Users\\sgsg_\\source\\repos\\Wordle\\puntuaciones.txt";
+
+            //ruta diego
+            string ruta = "C:\\Users\\bombo\\OneDrive\\Desktop\\Arqui\\ProyectoFinal\\Wordle\\puntuaciones.txt";
+
             string[] actTamanio = File.ReadAllLines(ruta);
             int tamanioActual = int.Parse(actTamanio[0]);
             tamanioActual++;
