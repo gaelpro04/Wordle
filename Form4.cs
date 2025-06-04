@@ -102,7 +102,8 @@ namespace Wordle
                     {
                         label.Text = linea[1] + ":0" + linea[2];
                     }
-                    label.Font = new Font("Segoe UI", 12, FontStyle.Bold);
+
+                        label.Font = new Font("Segoe UI", 12, FontStyle.Bold);
                     label.Size = new Size(166, 40);
                     label.TextAlign = ContentAlignment.MiddleCenter;
                     label.BorderStyle = BorderStyle.FixedSingle;

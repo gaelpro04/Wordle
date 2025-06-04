@@ -198,18 +198,18 @@ __declspec(dllexport) int* __stdcall verificarVerdes(char* palabraUsuario, char*
 	__asm {
 		mov ecx, arregloVerdes;
 		mov edx, indice
-		mov esi, palabraUsuario
-		mov edi, palabraAdivinar
+			mov esi, palabraUsuario
+			mov edi, palabraAdivinar
 
-		//voy comparando letra por letro y me voy moviendo en la palabra con el edx que es el indice
-		ciclo1:
-			mov al, [esi + edx]
+			//voy comparando letra por letro y me voy moviendo en la palabra con el edx que es el indice
+			ciclo1 :
+		mov al, [esi + edx]
 			mov bl, [edi + edx]
 			cmp al, bl
 			jne noIgual
 			mov dword ptr[ecx + edx * 4], 1
 
-		noIgual:
+			noIgual :
 			inc edx
 			cmp edx, cantidadLetras
 			jl ciclo1
@@ -227,36 +227,36 @@ __declspec(dllexport) int* __stdcall verificarAmarillos(char* palabraUsuario, ch
 		mov ecx, arregloAmarillos
 		mov esi, palabraUsuario
 		mov edi, palabraAdivinar
-		mov ebx, indice                  
+		mov ebx, indice
 
-		ciclo1:
-			cmp ebx, cantidadLetras
-			jge fin                       
+		ciclo1 :
+		cmp ebx, cantidadLetras
+			jge fin
 
-			mov al, [esi + ebx]          
-			mov edx, 0                 
+			mov al, [esi + ebx]
+			mov edx, 0
 
-			ciclo2:
-				cmp edx, cantidadLetras
-				jge siguiente                
+			ciclo2 :
+			cmp edx, cantidadLetras
+			jge siguiente
 
-				cmp ebx, edx               
-				je noIgual                   
+			cmp ebx, edx
+			je noIgual
 
-				mov ah, [edi + edx]         
-				cmp al, ah                   
-				jne noIgual                  
+			mov ah, [edi + edx]
+			cmp al, ah
+			jne noIgual
 
-			
-				mov dword ptr[ecx + ebx * 4], 1  
-				jmp siguiente                
 
-		noIgual:
-			inc edx                     
+			mov dword ptr[ecx + ebx * 4], 1
+			jmp siguiente
+
+			noIgual :
+		inc edx
 			jmp ciclo2
 
-		siguiente:
-			inc ebx                      
+			siguiente :
+		inc ebx
 			jmp ciclo1
 
 			fin :
@@ -277,8 +277,8 @@ __declspec(dllexport) int __stdcall verificarVictoria(int* arregloVerdes, int ca
 		mov ecx, 0
 		mov edx, cantidadLetras
 
-		COMPROBACIOUNOS:
-			cmp ecx, edx
+		COMPROBACIOUNOS :
+		cmp ecx, edx
 			je FINAL2
 
 			mov eax, [esi]
@@ -290,10 +290,10 @@ __declspec(dllexport) int __stdcall verificarVictoria(int* arregloVerdes, int ca
 			inc ecx
 			jmp COMPROBACIOUNOS
 
-		FINAL:
-			mov banderaRetornada, 0	
-				
-		FINAL2:
+			FINAL :
+		mov banderaRetornada, 0
+
+			FINAL2 :
 	}
 
 	return banderaRetornada;
@@ -318,7 +318,7 @@ __declspec(dllexport) long __stdcall obtenerTiempo() {
 //Funcion para saber si ya hizo los 6 intentos. Si los hizo quiere decir que puede que perdio(puede que el ultimo intento haya ganado
 // pero por esto mismo se verifica antes si gano)
 __declspec(dllexport) int verificarDerrota(int intentos) {
-	
+
 	int banderaRetornada = 0;
 
 	__asm {
@@ -328,10 +328,10 @@ __declspec(dllexport) int verificarDerrota(int intentos) {
 		je FINAL
 		jmp NOFINAL
 
-		FINAL:
-			mov banderaRetornada, 1
+		FINAL :
+		mov banderaRetornada, 1
 
-		NOFINAL:
+			NOFINAL :
 	}
 
 	return banderaRetornada;
@@ -368,14 +368,14 @@ __declspec(dllexport) int verificarTamanioArc(int tiempoActual) {
 		jg MAYOR
 		jmp SALIDA
 
-		MAYOR:
-			mov mayor, 1
+		MAYOR :
+		mov mayor, 1
 			jmp SALIDA
 
-		NOMAYOR:
-			mov mayor, 0
+			NOMAYOR :
+		mov mayor, 0
 
-		SALIDA:
+			SALIDA :
 	}
 
 	return mayor;
@@ -388,71 +388,95 @@ __declspec(dllexport) int lineasDisponibles(int tamanioActual) {
 
 	__asm {
 		mov hayQueLeer, 0
-		
+
 		mov eax, tamanioActual
 		cmp eax, 0
 		jg MAYOR
 
 		jmp SALIDA
 
-		MAYOR:
-			mov hayQueLeer, 1
+		MAYOR :
+		mov hayQueLeer, 1
 
-		SALIDA:
+			SALIDA :
 	}
 
 	return hayQueLeer;
 }
 
-__declspec(dllexport) void ordenamientoPuntuaciones(int* tiempos, char** nombres, int n)
+__declspec(dllexport) void ordenamientoPuntuaciones(char** nombres, int* minutos, int* segundos, int n)
 {
-	//Basicamente ordenamos solamente los tiempos, pero los nombres se mueven en base al ordenamiento de tiempos, por lo tanto
-	//se ordenan en paralelo pero simplement nombres se mueve en las mismas posiciones que tiempos.
-
-	//Se utiliza una especie de bubbleSort donde obtenemos los datos mediante saber cuandos bytes corresponden cada dato para
-	//cada iteacion moverse el nuevo elemento correctamente
+	// Ordenamos por tiempo completo: primero minutos, luego segundos
+	// Ahora recibimos tres arrays separados: nombres, minutos y segundos
 	__asm {
-		mov esi, tiempos
-		mov edi, nombres
-		mov ecx, n
-
+		mov edi, nombres    // edi apunta al array de nombres
+		mov esi, minutos    // esi apunta al array de minutos  
+		mov edx, segundos   // edx apunta al array de segundos
+		mov ecx, n          // ecx = número de elementos
 		cmp ecx, 2
 		jl FIN
-
 		dec ecx
 
-		PASADA:
-			push ecx
+		PASADA :
+		push ecx        // guardar contador de pasadas
 			mov ecx, n
 			dec ecx
-			xor ebx, ebx
+			xor ebx, ebx    // ebx = índice del elemento actual
 
-			COMPARAR:
-				mov eax, [esi + ebx * 4]
-				mov edx, [esi + ebx * 4 + 4]
+			COMPARAR :
+		push ecx    // guardar contador de comparaciones
+			push edx    // guardar puntero a segundos
 
-				cmp eax, edx
-				jle siguiente
+			// Cargar minutos[i] y minutos[i+1]
+			mov eax, [esi + ebx * 4]        // eax = minutos[i]
+			mov ecx, [esi + ebx * 4 + 4]    // ecx = minutos[i+1]
 
-				mov[esi + ebx * 4], edx
-				mov[esi + ebx * 4 + 4], eax
+			// Comparar minutos
+			cmp eax, ecx                    // comparar minutos[i] con minutos[i+1]
+			jg HACER_INTERCAMBIO            // si minutos[i] > minutos[i+1], intercambiar
+			jl NO_INTERCAMBIAR              // si minutos[i] < minutos[i+1], no intercambiar
 
-			
-				mov eax, [edi + ebx * 4]
-				mov edx, [edi + ebx * 4 + 4]
-				mov[edi + ebx * 4], edx
-				mov[edi + ebx * 4 + 4], eax
+			// Si minutos son iguales, comparar segundos
+			pop edx                         // recuperar puntero a segundos
+			push edx                        // volver a guardarlo
+			mov eax, [edx + ebx * 4]        // eax = segundos[i]
+			mov ecx, [edx + ebx * 4 + 4]    // ecx = segundos[i+1]
+			cmp eax, ecx                    // comparar segundos[i] con segundos[i+1]
+			jle NO_INTERCAMBIAR             // si segundos[i] <= segundos[i+1], no intercambiar
 
-			SIGUIENTE:
-				inc ebx
-				dec ecx
-				jnz COMPARAR
+			HACER_INTERCAMBIO :
+		// Intercambiar minutos
+		mov eax, [esi + ebx * 4]        // eax = minutos[i]
+			mov ecx, [esi + ebx * 4 + 4]    // ecx = minutos[i+1]
+			mov[esi + ebx * 4], ecx        // minutos[i] = minutos[i+1]
+			mov[esi + ebx * 4 + 4], eax    // minutos[i+1] = minutos[i]
 
-				pop ecx
-				dec ecx
-				jnz PASADA
+			// Intercambiar segundos
+			pop edx                         // recuperar puntero a segundos
+			push edx                        // volver a guardarlo
+			mov eax, [edx + ebx * 4]        // eax = segundos[i]
+			mov ecx, [edx + ebx * 4 + 4]    // ecx = segundos[i+1]
+			mov[edx + ebx * 4], ecx        // segundos[i] = segundos[i+1]
+			mov[edx + ebx * 4 + 4], eax    // segundos[i+1] = segundos[i]
 
-		FIN:
+			// Intercambiar nombres correspondientes
+			mov eax, [edi + ebx * 4]
+			mov ecx, [edi + ebx * 4 + 4]
+			mov[edi + ebx * 4], ecx
+			mov[edi + ebx * 4 + 4], eax
+
+			NO_INTERCAMBIAR :
+		pop edx     // recuperar puntero a segundos
+			pop ecx     // recuperar contador de comparaciones
+			inc ebx
+			dec ecx
+			jnz COMPARAR
+
+			pop ecx         // recuperar contador de pasadas
+			dec ecx
+			jnz PASADA
+
+			FIN :
 	}
 }
 
@@ -468,8 +492,4 @@ __declspec(dllexport) int calculoTiempo(int tiempoInicio, int tiempoFinal) {
 		sub eax, tiempoInicio
 		mov tiempoAbsoluto, eax
 	}
-
-
-
-
-
+}

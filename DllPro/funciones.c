@@ -404,7 +404,7 @@ __declspec(dllexport) int lineasDisponibles(int tamanioActual) {
 	return hayQueLeer;
 }
 
-__declspec(dllexport) void ordenamientoPuntuaciones(int* tiempos, char** nombres, int n)
+__declspec(dllexport) void ordenamientoPuntuaciones(char** nombres, int* minutos, int* segundos, int n)
 {
 	//Basicamente ordenamos solamente los tiempos, pero los nombres se mueven en base al ordenamiento de tiempos, por lo tanto
 	//se ordenan en paralelo pero simplement nombres se mueve en las mismas posiciones que tiempos.
@@ -412,43 +412,65 @@ __declspec(dllexport) void ordenamientoPuntuaciones(int* tiempos, char** nombres
 	//Se utiliza una especie de bubbleSort donde obtenemos los datos mediante saber cuandos bytes corresponden cada dato para
 	//cada iteacion moverse el nuevo elemento correctamente
 	__asm {
-		mov esi, tiempos
-		mov edi, nombres
-		mov ecx, n
-
+		mov edi, nombres    
+		mov esi, minutos     
+		mov edx, segundos   
+		mov ecx, n         
 		cmp ecx, 2
 		jl FIN
-
 		dec ecx
 
 		PASADA :
-		push ecx
+			push ecx        
 			mov ecx, n
 			dec ecx
-			xor ebx, ebx
+			xor ebx, ebx   
 
-			COMPARAR :
-		mov eax, [esi + ebx * 4]
-			mov edx, [esi + ebx * 4 + 4]
+		COMPARAR :
+			push ecx    
+			push edx    
 
-			cmp eax, edx
-			jle siguiente
+			mov eax, [esi + ebx * 4]        
+			mov ecx, [esi + ebx * 4 + 4]    
 
-			mov[esi + ebx * 4], edx
-			mov[esi + ebx * 4 + 4], eax
+			cmp eax, ecx                    
+			jg HACER_INTERCAMBIO            
+			jl NO_INTERCAMBIAR              
 
+			pop edx                        
+			push edx                        
+			mov eax, [edx + ebx * 4]        
+			mov ecx, [edx + ebx * 4 + 4]    
+			cmp eax, ecx                    
+			jle NO_INTERCAMBIAR             
+
+		HACER_INTERCAMBIO :
+		
+			mov eax, [esi + ebx * 4]       
+			mov ecx, [esi + ebx * 4 + 4]    
+			mov[esi + ebx * 4], ecx        
+			mov[esi + ebx * 4 + 4], eax    
+
+			pop edx                         
+			push edx                        
+			mov eax, [edx + ebx * 4]        
+			mov ecx, [edx + ebx * 4 + 4]   
+			mov[edx + ebx * 4], ecx       
+			mov[edx + ebx * 4 + 4], eax    
 
 			mov eax, [edi + ebx * 4]
-			mov edx, [edi + ebx * 4 + 4]
-			mov[edi + ebx * 4], edx
+			mov ecx, [edi + ebx * 4 + 4]
+			mov[edi + ebx * 4], ecx
 			mov[edi + ebx * 4 + 4], eax
 
-			SIGUIENTE :
-		inc ebx
+		NO_INTERCAMBIAR :
+			pop edx     
+			pop ecx     
+			inc ebx
 			dec ecx
 			jnz COMPARAR
 
-			pop ecx
+			pop ecx        
 			dec ecx
 			jnz PASADA
 

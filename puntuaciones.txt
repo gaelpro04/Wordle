@@ -1,9 +1,18 @@
-8
-gael pro,1,10
-diego,0,3
-kitzia,0,2
-jose,0,2
-,0,0
-,0,0
-,0,0
+17
+usted,3,25
+jose,1,2
 ,1,0
+madre,0,56
+hola,0,36
+andrea,0,15
+toasdf,0,13
+yo,0,2
+diego,0,2
+prueba3,0,2
+kitzia,0,2
+lol,0,2
+prueba2,0,1
+gael pro,0,1
+,0,0
+,0,0
+,0,0

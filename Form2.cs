@@ -48,7 +48,7 @@ namespace Wordle
         public static extern int verificarTamanioArc(int tiempoActual);
 
         [DllImport("DllPro.dll", CallingConvention = CallingConvention.StdCall)]
-        public static extern void ordenamientoPuntuaciones(IntPtr tiempos, IntPtr nombres, int n);
+        public static extern void ordenamientoPuntuaciones(IntPtr nombres, IntPtr minutos, IntPtr segundos, int n);
 
         [DllImport("DllPro.dll", CallingConvention = CallingConvention.StdCall)]
         public static extern int calculoTiempo(int tiempoInicio, int tiempoFinal);
@@ -514,8 +514,8 @@ namespace Wordle
                 Console.WriteLine("SEGUNDODOSOSOS   : " + segundosArchivo);
 
                 nombresTemp[contador] = nombre;
-                tiemposTemp[contador] = tiempoSeg * 1000;
                 minArchivo[contador] = minutos;
+                tiemposTemp[contador] = tiempoSeg * 1000;
                 
 
                 Console.WriteLine("=== ANTES DEL ORDENAMIENTO ===");
@@ -524,10 +524,14 @@ namespace Wordle
                     Console.WriteLine($"{nombresTemp[i]}, {tiemposTemp[i]}");
                 }
 
-                IntPtr tiemposPtr = intArToIntPtrAr(tiemposTemp);
                 IntPtr nombresPtr = StringArrayToIntPtr(nombresTemp);
+                
+                IntPtr tiemposPtr = intArToIntPtrAr(tiemposTemp);
 
-                ordenamientoPuntuaciones(tiemposPtr, nombresPtr, tamanioActual);
+                GCHandle minutosHandle = GCHandle.Alloc(minArchivo, GCHandleType.Pinned);
+                IntPtr minutosPtr = minutosHandle.AddrOfPinnedObject();
+
+                ordenamientoPuntuaciones(nombresPtr, minutosPtr, tiemposPtr, tamanioActual);
 
                 int[] tiemposOrdenados = new int[tamanioActual];
                 Marshal.Copy(tiemposPtr, tiemposOrdenados, 0, tamanioActual);
@@ -550,6 +554,10 @@ namespace Wordle
                 if (tiemposHandle.IsAllocated)
                 {
                     tiemposHandle.Free();
+                }
+                if (minutosHandle.IsAllocated)
+                {
+                    minutosHandle.Free();
                 }
 
                 string[] nuevaEscritura = new string[tamanioActual + 1];
