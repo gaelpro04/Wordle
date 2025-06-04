@@ -1,13 +1,9 @@
-12
-diegoElMenosPro,20
-andrea,18
-mimadrellora,9
-when,8
-diegoB,7
-gatitaxsiempre,5
-joseTorres,4
-mierda,3
-dab,2
-bebitaxsiempre,2
-kitziaxdiego,1
-,0
+8
+gael pro,1,10
+diego,0,3
+kitzia,0,2
+jose,0,2
+,0,0
+,0,0
+,0,0
+,1,0

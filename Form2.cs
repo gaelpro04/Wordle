@@ -68,6 +68,8 @@ namespace Wordle
         private int intentos;
         private string[] nombres;
         private int[] tiempos;
+        private int minutosArchivo;
+        private int segundosArchivo;
         private GCHandle tiemposHandle;
 
         private List<Label[]> labelsLetras;
@@ -276,27 +278,44 @@ namespace Wordle
                 int[] amarillos = new int[longitudEsperada];
                 Marshal.Copy(ptrAmarillos, amarillos, 0, longitudEsperada);
 
-                //pasar esto a esamblador
-                for (int i = 0; i < longitudEsperada; i++)
+                try
                 {
-                    if (amarillos[i] == 1 && verdes[i] == 0)
+                    // Crear arreglo para los resultados
+                    int[] resultados = new int[longitudEsperada];
+
+                    // Validar que las cadenas tengan la longitud correcta
+                    if (palabraUsuario.Length != longitudEsperada || palabraSeleccionada.Length != longitudEsperada)
                     {
-                        char letraActual = letrasPalabraUsuario[i];
-                        bool yaVerde = false;
-                        for (int j = 0; j < longitudEsperada; j++)
-                        {
-                            if (letraActual == palabraSeleccionada[j] && verdes[j] == 1)
-                            {
-                                yaVerde = true;
-                                break;
-                            }
-                        }
-                        if (!yaVerde)
+                        throw new ArgumentException("Las palabras no tienen la longitud esperada");
+                    }
+
+                    // Convertir strings a byte arrays para ensamblador (con terminador nulo)
+                    byte[] letrasPalabraUsuarioBytes = new byte[longitudEsperada + 1];
+                    byte[] palabraSeleccionadaBytes = new byte[longitudEsperada + 1];
+
+                    Encoding.ASCII.GetBytes(palabraUsuario, 0, palabraUsuario.Length, letrasPalabraUsuarioBytes, 0);
+                    Encoding.ASCII.GetBytes(palabraSeleccionada, 0, palabraSeleccionada.Length, palabraSeleccionadaBytes, 0);
+
+                    // Asegurar terminadores nulos
+                    letrasPalabraUsuarioBytes[longitudEsperada] = 0;
+                    palabraSeleccionadaBytes[longitudEsperada] = 0;
+
+                    // Aplicar los colores basándose en los resultados
+                    for (int i = 0; i < longitudEsperada; i++)
+                    {
+                        if (resultados[i] == 1)
                         {
                             labelsLetras[fila - 1][i].BackColor = Color.Yellow;
                         }
                     }
-
+                }
+                finally
+                {
+                    // Liberar la memoria asignada por verificarAmarillos
+                    if (ptrAmarillos != IntPtr.Zero)
+                    {
+                        Marshal.FreeHGlobal(ptrAmarillos);
+                    }
                 }
                 ++intentos;
 
@@ -312,7 +331,7 @@ namespace Wordle
                     DialogResult resultado = 0;
                     timer1.Stop();
                     //resultado = MessageBox.Show($"Has ganado!!. Tiempo: {tiempo} \n Deseas reiniciar el juego?", "Victoria", MessageBoxButtons.YesNo);
-                    Form5 form5 = new Form5(tiempoAbsoluto); 
+                    Form5 form5 = new Form5(tiempo); 
                     resultado = form5.ShowDialog();
                     string nombreUsuario = form5.getNombreUsuario();
 
@@ -322,8 +341,6 @@ namespace Wordle
                     {
                         lecturaArchivo(nombreUsuario, tiempoAbsoluto);
                     }
-                    
-                    
 
                     if (resultado == DialogResult.Yes)
                     {
@@ -435,6 +452,7 @@ namespace Wordle
                 label33.Text = tiempo;
             } else
             {
+                segundosArchivo = tiempoSeg;
                 label33.Text = tiempo;
             }
 
@@ -459,7 +477,7 @@ namespace Wordle
         //Metodo encargado de la lectura y escritua de archivos puntuaciones
         //Ruta gael: C:\Users\sgsg_\source\repos\Wordle\puntuaciones.txt
         //Ruta Diego: 
-        private void lecturaArchivo(string nombre, int tiempo)
+        private void lecturaArchivo(string nombre, int tiempoSeg)
         {
             //ruta gael
             //string ruta = "C:\\Users\\sgsg_\\source\\repos\\Wordle\\puntuaciones.txt";
@@ -477,22 +495,28 @@ namespace Wordle
             if (verificador == 1)
             {
                 int[] tiemposTemp = new int[tamanioActual];
+                int[] minArchivo = new int[tamanioActual];
                 string[] nombresTemp = new string[tamanioActual];
 
                 int contador = 0;
                 for (int i = 1; i < actTamanio.Length; ++i)
                 {
                     string[] lineas = actTamanio[i].Split(',');
-                    if (lineas.Length == 2)
+                    if (lineas.Length == 3)
                     {
                         nombresTemp[contador] = lineas[0];
-                        tiemposTemp[contador] = int.Parse(lineas[1].Trim()) * 1000;
+                        minArchivo[contador] = int.Parse(lineas[1].Trim());
+                        tiemposTemp[contador] = int.Parse(lineas[2].Trim()) * 1000;
                         ++contador;
                     }
                 }
+                Console.WriteLine("MINUTOSSSS   :" + minutos);
+                Console.WriteLine("SEGUNDODOSOSOS   : " + segundosArchivo);
 
                 nombresTemp[contador] = nombre;
-                tiemposTemp[contador] = tiempo * 1000;
+                tiemposTemp[contador] = tiempoSeg * 1000;
+                minArchivo[contador] = minutos;
+                
 
                 Console.WriteLine("=== ANTES DEL ORDENAMIENTO ===");
                 for (int i = 0; i < tamanioActual; i++)
@@ -534,7 +558,7 @@ namespace Wordle
                 int contadorArchivos = 1;
                 for(int i = tamanioActual - 1;i >= 0; i--)
                 {
-                    nuevaEscritura[contadorArchivos] = nombresOrdenados[i] + "," + (tiemposOrdenados[i] / 1000);
+                    nuevaEscritura[contadorArchivos] = nombresOrdenados[i] + "," + minArchivo[i] + "," + (tiemposOrdenados[i] / 1000);
                     ++contadorArchivos;
                 }
 

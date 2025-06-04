@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             label1 = new Label();
-            button1 = new Button();
             SuspendLayout();
             // 
             // label1
@@ -44,23 +43,12 @@
             label1.Text = "Puntuaciones";
             label1.Click += label1_Click_1;
             // 
-            // button1
-            // 
-            button1.Location = new Point(284, 601);
-            button1.Name = "button1";
-            button1.Size = new Size(114, 33);
-            button1.TabIndex = 1;
-            button1.Text = "Regresar";
-            button1.UseVisualStyleBackColor = true;
-            button1.Click += button1_Click;
-            // 
             // Form4
             // 
             AutoScaleDimensions = new SizeF(9F, 23F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.Window;
             ClientSize = new Size(696, 688);
-            Controls.Add(button1);
             Controls.Add(label1);
             Name = "Form4";
             Text = "Puntuaciones";
@@ -72,6 +60,5 @@
         #endregion
 
         private Label label1;
-        private Button button1;
     }
 }

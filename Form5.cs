@@ -15,11 +15,11 @@ namespace Wordle
     public partial class Form5 : Form
     {
         private string nombreUsuario = "";
-        private int tiempo;
+        private string tiempo;
         private string[] nombres;
         private long[] tiempos;
 
-        public Form5(int tiempo)
+        public Form5(string tiempo)
         {
             InitializeComponent();
 
@@ -71,7 +71,7 @@ namespace Wordle
             return nombreUsuario;
         }
 
-        public int getTiempo()
+        public string getTiempo()
         {
             return tiempo;
         }

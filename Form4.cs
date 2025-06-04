@@ -27,13 +27,13 @@ namespace Wordle
             botonRegresar = new Button();
             botonRegresar.Text = "Regresar";
             botonRegresar.Size = new Size(114, 33);
-            botonRegresar.Location = new Point(284, 601);
+            botonRegresar.Location = new Point(284, 640);
             botonRegresar.Click += button1_Click;
             this.Controls.Add(botonRegresar);
 
             panelPuntuaciones = new Panel();
             panelPuntuaciones.AutoScroll = true;
-            panelPuntuaciones.Size = new Size(716, 740);
+            panelPuntuaciones.Size = new Size(716, 620);
             panelPuntuaciones.Location = new Point(10, 10);
             this.Controls.Add(panelPuntuaciones);
 
@@ -72,7 +72,7 @@ namespace Wordle
                 for (int i = tamanioActual; i >= 1; i--)
                 {
                     string[] linea = actTamanio[i].Split(",");
-                    if (linea.Length < 2 || string.IsNullOrWhiteSpace(linea[0]))
+                    if (linea.Length < 3 || string.IsNullOrWhiteSpace(linea[0]))
                         continue;
                     Label label = new Label();
                     label.Name = "label" + i;
@@ -90,11 +90,18 @@ namespace Wordle
                 for (int i = tamanioActual; i >= 1; i--)
                 {
                     string[] linea = actTamanio[i].Split(",");
-                    if (linea.Length < 2 || string.IsNullOrWhiteSpace(linea[0]))
+                    if (linea.Length < 3 || string.IsNullOrWhiteSpace(linea[0]))
                         continue;
                     Label label = new Label();
                     label.Name = "label" + i;
-                    label.Text = linea[1];
+                    if (int.Parse(linea[2]) > 9)
+                    {
+                        label.Text = linea[1] + ":" + linea[2];
+                    }
+                    else
+                    {
+                        label.Text = linea[1] + ":0" + linea[2];
+                    }
                     label.Font = new Font("Segoe UI", 12, FontStyle.Bold);
                     label.Size = new Size(166, 40);
                     label.TextAlign = ContentAlignment.MiddleCenter;
@@ -103,7 +110,6 @@ namespace Wordle
                     label.Location = new Point(posicionBaseX + distanciaX, posicionBaseY + distanciaY * j);
                     panelPuntuaciones.Controls.Add(label);
                     j++;
-                    Console.WriteLine(actTamanio[i]);
                 }
             }
         }
