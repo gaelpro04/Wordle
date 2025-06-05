@@ -278,6 +278,28 @@ namespace Wordle
                 int[] amarillos = new int[longitudEsperada];
                 Marshal.Copy(ptrAmarillos, amarillos, 0, longitudEsperada);
 
+                for (int i = 0; i < longitudEsperada; i++)
+                {
+                    if (amarillos[i] == 1 && verdes[i] == 0)
+                    {
+                        char letraActual = letrasPalabraUsuario[i];
+                        bool yaVerde = false;
+                        for (int j = 0; j < longitudEsperada; j++)
+                        {
+                            if (letraActual == palabraSeleccionada[j] && verdes[j] == 1)
+                            {
+                                yaVerde = true;
+                                break;
+                            }
+                        }
+                        if (!yaVerde)
+                        {
+                            labelsLetras[fila - 1][i].BackColor = Color.Yellow;
+                        }
+                    }
+
+                }
+
                 try
                 {
                     // Crear arreglo para los resultados
