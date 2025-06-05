@@ -406,73 +406,71 @@ __declspec(dllexport) int lineasDisponibles(int tamanioActual) {
 
 __declspec(dllexport) void ordenamientoPuntuaciones(char** nombres, int* minutos, int* segundos, int n)
 {
-	// Ordenamos por tiempo completo: primero minutos, luego segundos
-	// Ahora recibimos tres arrays separados: nombres, minutos y segundos
+	//Basicamente ordenamos solamente los tiempos, pero los nombres se mueven en base al ordenamiento de tiempos, por lo tanto
+	//se ordenan en paralelo pero simplement nombres se mueve en las mismas posiciones que tiempos.
+
+	//Se utiliza una especie de bubbleSort donde obtenemos los datos mediante saber cuandos bytes corresponden cada dato para
+	//cada iteacion moverse el nuevo elemento correctamente
 	__asm {
-		mov edi, nombres    // edi apunta al array de nombres
-		mov esi, minutos    // esi apunta al array de minutos  
-		mov edx, segundos   // edx apunta al array de segundos
-		mov ecx, n          // ecx = número de elementos
+		mov edi, nombres    
+		mov esi, minutos     
+		mov edx, segundos   
+		mov ecx, n         
 		cmp ecx, 2
 		jl FIN
 		dec ecx
 
 		PASADA :
-		push ecx        // guardar contador de pasadas
+			push ecx        
 			mov ecx, n
 			dec ecx
-			xor ebx, ebx    // ebx = índice del elemento actual
+			xor ebx, ebx   
 
-			COMPARAR :
-		push ecx    // guardar contador de comparaciones
-			push edx    // guardar puntero a segundos
+		COMPARAR :
+			push ecx    
+			push edx    
 
-			// Cargar minutos[i] y minutos[i+1]
-			mov eax, [esi + ebx * 4]        // eax = minutos[i]
-			mov ecx, [esi + ebx * 4 + 4]    // ecx = minutos[i+1]
+			mov eax, [esi + ebx * 4]        
+			mov ecx, [esi + ebx * 4 + 4]    
 
-			// Comparar minutos
-			cmp eax, ecx                    // comparar minutos[i] con minutos[i+1]
-			jg HACER_INTERCAMBIO            // si minutos[i] > minutos[i+1], intercambiar
-			jl NO_INTERCAMBIAR              // si minutos[i] < minutos[i+1], no intercambiar
+			cmp eax, ecx                    
+			jg HACER_INTERCAMBIO            
+			jl NO_INTERCAMBIAR              
 
-			// Si minutos son iguales, comparar segundos
-			pop edx                         // recuperar puntero a segundos
-			push edx                        // volver a guardarlo
-			mov eax, [edx + ebx * 4]        // eax = segundos[i]
-			mov ecx, [edx + ebx * 4 + 4]    // ecx = segundos[i+1]
-			cmp eax, ecx                    // comparar segundos[i] con segundos[i+1]
-			jle NO_INTERCAMBIAR             // si segundos[i] <= segundos[i+1], no intercambiar
+			pop edx                        
+			push edx                        
+			mov eax, [edx + ebx * 4]        
+			mov ecx, [edx + ebx * 4 + 4]    
+			cmp eax, ecx                    
+			jle NO_INTERCAMBIAR             
 
-			HACER_INTERCAMBIO :
-		// Intercambiar minutos
-		mov eax, [esi + ebx * 4]        // eax = minutos[i]
-			mov ecx, [esi + ebx * 4 + 4]    // ecx = minutos[i+1]
-			mov[esi + ebx * 4], ecx        // minutos[i] = minutos[i+1]
-			mov[esi + ebx * 4 + 4], eax    // minutos[i+1] = minutos[i]
+		HACER_INTERCAMBIO :
+		
+			mov eax, [esi + ebx * 4]       
+			mov ecx, [esi + ebx * 4 + 4]    
+			mov[esi + ebx * 4], ecx        
+			mov[esi + ebx * 4 + 4], eax    
 
-			// Intercambiar segundos
-			pop edx                         // recuperar puntero a segundos
-			push edx                        // volver a guardarlo
-			mov eax, [edx + ebx * 4]        // eax = segundos[i]
-			mov ecx, [edx + ebx * 4 + 4]    // ecx = segundos[i+1]
-			mov[edx + ebx * 4], ecx        // segundos[i] = segundos[i+1]
-			mov[edx + ebx * 4 + 4], eax    // segundos[i+1] = segundos[i]
+			pop edx                         
+			push edx                        
+			mov eax, [edx + ebx * 4]        
+			mov ecx, [edx + ebx * 4 + 4]   
+			mov[edx + ebx * 4], ecx       
+			mov[edx + ebx * 4 + 4], eax    
 
-			// Intercambiar nombres correspondientes
 			mov eax, [edi + ebx * 4]
 			mov ecx, [edi + ebx * 4 + 4]
 			mov[edi + ebx * 4], ecx
 			mov[edi + ebx * 4 + 4], eax
 
-			NO_INTERCAMBIAR :
-		pop edx     // recuperar puntero a segundos
-			pop ecx     // recuperar contador de comparaciones
+		NO_INTERCAMBIAR :
+			pop edx     
+			pop ecx     
 			inc ebx
 			dec ecx
 			jnz COMPARAR
 
-			pop ecx         // recuperar contador de pasadas
+			pop ecx        
 			dec ecx
 			jnz PASADA
 
